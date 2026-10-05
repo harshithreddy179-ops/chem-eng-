@@ -26,7 +26,7 @@ export function SubjectIndex({ rows }: { rows: SubjectIndexRow[] }) {
               {pad(i + 1)}
             </span>
             <div className="relative min-w-0">
-              <h3 className="font-display text-[2rem] font-light uppercase leading-[0.95] transition-transform duration-1000 ease-luxe group-hover:translate-x-2 md:text-[3.1rem]">
+              <h3 className="font-display text-[1.6rem] font-light uppercase leading-[0.95] sm:text-[2rem] transition-transform duration-1000 ease-luxe group-hover:translate-x-2 md:text-[3.1rem]">
                 {row.subject.name}
               </h3>
               <p className="mt-3 font-sans text-[0.62rem] uppercase tracking-[0.24em] text-ivory-500">

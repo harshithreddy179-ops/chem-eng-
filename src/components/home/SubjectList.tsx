@@ -27,7 +27,7 @@ export function SubjectList({ subjects, motifs }: SubjectListProps) {
               href={`/subjects/${s.slug}`}
               onMouseEnter={() => setActive(i)}
               onFocus={() => setActive(i)}
-              className="group relative flex items-baseline gap-6 py-7 md:gap-10 md:py-9"
+              className="group relative flex items-baseline gap-4 py-7 md:gap-10 md:py-9"
             >
               <span
                 className={cn(
@@ -40,7 +40,7 @@ export function SubjectList({ subjects, motifs }: SubjectListProps) {
               <span className="min-w-0 flex-1">
                 <span
                   className={cn(
-                    "block font-display text-[2rem] font-light uppercase leading-[0.95] tracking-[-0.01em] transition-all duration-1000 ease-luxe sm:text-5xl lg:text-[3.4rem]",
+                    "block font-display text-[1.6rem] font-light uppercase leading-[0.95] tracking-[-0.01em] transition-all duration-1000 ease-luxe sm:text-5xl lg:text-[3.4rem]",
                     active === i ? "translate-x-2 text-ivory" : "text-ivory/45 group-hover:text-ivory/80",
                   )}
                 >
@@ -66,7 +66,7 @@ export function SubjectList({ subjects, motifs }: SubjectListProps) {
                 →
               </span>
               {/* Mobile motif */}
-              <span aria-hidden className="h-14 w-16 shrink-0 self-center text-bronze/70 lg:hidden">
+              <span aria-hidden className="hidden h-14 w-16 shrink-0 self-center text-bronze/70 sm:block lg:hidden">
                 {motifs[s.slug]}
               </span>
             </Link>

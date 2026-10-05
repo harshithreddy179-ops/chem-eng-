@@ -72,12 +72,12 @@ export function SiteHeader() {
           scrolled && !menuOpen ? "border-b border-line bg-ink/75 backdrop-blur-xl" : "border-b border-transparent",
         )}
       >
-        <div className="frame flex h-[4.5rem] items-center justify-between md:h-20">
-          <Link href="/" className="group flex flex-col leading-none" aria-label="The Chemical Archive — home">
+        <div className="frame flex h-[4.5rem] items-center justify-between gap-4 md:h-20">
+          <Link href="/" className="group flex min-w-0 flex-col leading-none" aria-label="The Chemical Archive — home">
             <span className="font-sans text-[0.55rem] uppercase tracking-[0.38em] text-ivory-400 transition-colors duration-500 group-hover:text-bronze">
               {INSTITUTION}
             </span>
-            <span className="mt-1.5 font-display text-[1.05rem] uppercase tracking-[0.18em] text-ivory">
+            <span className="mt-1.5 whitespace-nowrap font-display text-[0.9rem] uppercase tracking-[0.1em] text-ivory sm:text-[1.05rem] sm:tracking-[0.18em]">
               The Chemical Archive
             </span>
           </Link>
@@ -113,7 +113,7 @@ export function SiteHeader() {
             </button>
           </nav>
 
-          <div className="flex items-center gap-5 md:hidden">
+          <div className="flex shrink-0 items-center gap-2 md:hidden">
             <button type="button" onClick={openSearch} aria-label="Search the archive" className="p-2 text-ivory-200">
               <Search className="h-4 w-4" strokeWidth={1.25} />
             </button>
@@ -122,9 +122,10 @@ export function SiteHeader() {
               onClick={() => setMenuOpen((o) => !o)}
               aria-expanded={menuOpen}
               aria-controls="mobile-menu"
-              className="relative flex h-10 items-center gap-3 font-sans text-[0.65rem] uppercase tracking-[0.3em]"
+              aria-label={menuOpen ? "Close menu" : "Open menu"}
+              className="relative flex h-10 items-center gap-3 pl-1 font-sans text-[0.62rem] uppercase tracking-[0.24em]"
             >
-              <span>{menuOpen ? "Close" : "Menu"}</span>
+              <span aria-hidden className="hidden min-[400px]:inline">{menuOpen ? "Close" : "Menu"}</span>
               <span aria-hidden className="relative block h-3 w-6">
                 <span
                   className={cn(

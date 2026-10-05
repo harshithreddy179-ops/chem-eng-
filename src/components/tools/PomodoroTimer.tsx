@@ -232,7 +232,7 @@ export function PomodoroTimer() {
       </div>
 
       {/* Dial */}
-      <div className="relative mx-auto mt-12 aspect-square w-[min(84vw,30rem)] md:mt-16">
+      <div className="relative mx-auto mt-12 aspect-square w-[min(84vw,30rem,56svh)] md:mt-12">
         <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden>
           {ticks.map((t) => {
             const a = (t / 60) * Math.PI * 2;

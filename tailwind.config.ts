@@ -38,7 +38,7 @@ const config: Config = {
       fontSize: {
         "display-2xl": ["clamp(4.5rem, 17vw, 17rem)", { lineHeight: "0.82", letterSpacing: "-0.035em" }],
         "display-xl": ["clamp(3.25rem, 9vw, 9rem)", { lineHeight: "0.9", letterSpacing: "-0.03em" }],
-        "display-lg": ["clamp(2.6rem, 6vw, 6rem)", { lineHeight: "0.95", letterSpacing: "-0.025em" }],
+        "display-lg": ["clamp(2.1rem, 6vw, 6rem)", { lineHeight: "0.95", letterSpacing: "-0.025em" }],
         "display-md": ["clamp(2rem, 4vw, 3.75rem)", { lineHeight: "1", letterSpacing: "-0.02em" }],
         "display-sm": ["clamp(1.6rem, 2.6vw, 2.4rem)", { lineHeight: "1.08", letterSpacing: "-0.015em" }],
         eyebrow: ["0.6875rem", { lineHeight: "1.2", letterSpacing: "0.28em" }],

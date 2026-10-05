@@ -200,6 +200,17 @@ alter table public.pyqs              enable row level security;
 alter table public.pyq_resources     enable row level security;
 alter table public.bookmarks         enable row level security;
 
+-- Explicit privileges (projects may not auto-expose new tables). RLS below
+-- still decides which ROWS each role can see or change.
+grant usage on schema public to anon, authenticated;
+grant select on public.academic_sections, public.subjects, public.chapters,
+                public.resources, public.pyqs, public.pyq_resources to anon, authenticated;
+grant insert, update, delete on public.academic_sections, public.subjects, public.chapters,
+                public.resources, public.pyqs, public.pyq_resources to authenticated;
+grant select, update on public.profiles to authenticated;
+grant select on public.admins to authenticated;
+grant select, insert, delete on public.bookmarks to authenticated;
+
 -- profiles: a user sees/edits only their own row; admins see all.
 drop policy if exists "profiles self read" on public.profiles;
 create policy "profiles self read" on public.profiles

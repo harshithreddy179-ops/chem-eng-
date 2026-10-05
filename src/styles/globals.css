@@ -11,6 +11,11 @@
     color-scheme: dark;
   }
 
+  html,
+  body {
+    overflow-x: clip;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
@@ -36,6 +41,8 @@
 
   h1, h2, h3, h4 {
     font-weight: 300;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
