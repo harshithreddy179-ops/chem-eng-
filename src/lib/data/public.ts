@@ -12,6 +12,7 @@ import type {
   Resource,
   Subject,
 } from "@/types";
+import { neighbours, type PyqNavItem, type PyqNeighbours, type PyqOrderRow } from "@/lib/pyq-order";
 
 /* All public reads go through the anonymous client and are filtered by
    RLS to published content. Every function degrades gracefully to the
@@ -241,6 +242,30 @@ export async function getPyqById(id: string): Promise<PyqWithRelations | null> {
   const { data, error } = await db.from("pyqs").select(PYQ_SELECT).eq("id", id).eq("is_published", true).maybeSingle();
   if (error) warn("pyq", error);
   return data ? shapePyq(data as RawPyq) : null;
+}
+
+/** Previous / next published question in the same subject, in reading order. */
+export async function getPyqNeighbours(pyq: Pick<Pyq, "id" | "subject_id">): Promise<PyqNeighbours<PyqNavItem>> {
+  const empty = { prev: null, next: null, position: 0, total: 0 };
+  const db = getPublicClient();
+  if (!db) return empty;
+  const { data, error } = await db
+    .from("pyqs")
+    .select("id, year, exam, question_number, created_at, section:academic_sections(name, display_order)")
+    .eq("is_published", true)
+    .eq("subject_id", pyq.subject_id)
+    .limit(2000);
+  if (error) {
+    warn("pyq-neighbours", error);
+    return empty;
+  }
+  type Row = Omit<PyqOrderRow, "section_order"> & { section: { name: string; display_order: number } | null };
+  const rows: PyqNavItem[] = (data as unknown as Row[]).map(({ section, ...r }) => ({
+    ...r,
+    section_order: section?.display_order ?? null,
+    section_name: section?.name ?? null,
+  }));
+  return neighbours(rows, pyq.id);
 }
 
 export interface PyqFacets {
