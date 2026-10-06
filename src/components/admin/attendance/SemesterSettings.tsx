@@ -31,7 +31,7 @@ export function SemesterSettings({ id, fields, initial }: { id: string; fields: 
       >
         <input type="hidden" name="_table" value="attendance_semesters" />
         <input type="hidden" name="id" value={id} />
-        <button type="submit" className="font-sans text-[0.65rem] uppercase tracking-[0.2em] text-garnet-300/80 hover:text-garnet-300">
+        <button type="submit" className="font-sans text-sm text-garnet-300/80 hover:text-garnet-300">
           Delete semester
         </button>
       </form>

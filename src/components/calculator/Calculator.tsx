@@ -242,23 +242,23 @@ export function Calculator({
 
   const keyClass = (k: Key) =>
     cn(
-      "relative flex items-center justify-center border-b border-r border-line font-sans transition-colors duration-300 active:bg-ivory/[0.08] focus-visible:z-10",
-      compact ? "h-10 text-[0.8rem]" : "h-12 text-sm md:h-14",
-      k.tone === "fn" && "text-ivory-300 hover:bg-ivory/[0.04] hover:text-ivory",
-      k.tone === "num" && cn("font-display tabular text-ivory hover:bg-ivory/[0.05]", compact ? "text-xl" : "text-2xl"),
-      k.tone === "op" && cn("font-display text-bronze-300 hover:bg-bronze/10", compact ? "text-xl" : "text-2xl"),
-      k.tone === "util" && "text-[0.65rem] uppercase tracking-[0.2em] text-ivory-400 hover:bg-ivory/[0.04] hover:text-ivory",
-      k.tone === "eq" && cn("row-span-2 !h-auto bg-ivory font-display text-ink hover:bg-bronze-300", compact ? "text-2xl" : "text-3xl"),
+      "relative flex items-center justify-center rounded-xl font-sans font-semibold transition active:scale-[0.97] focus-visible:z-10",
+      compact ? "h-10 text-sm" : "h-12 text-[15px] md:h-14",
+      k.tone === "fn" && "bg-slate-100 text-slate-700 hover:bg-slate-200",
+      k.tone === "num" && cn("border border-slate-200 bg-white tabular text-slate-900 shadow-sm hover:bg-slate-50", compact ? "text-lg" : "text-xl"),
+      k.tone === "op" && cn("bg-brand-50 text-brand-700 hover:bg-brand-100", compact ? "text-lg" : "text-xl"),
+      k.tone === "util" && "bg-rose-50 text-rose-600 hover:bg-rose-100",
+      k.tone === "eq" && cn("row-span-2 !h-auto bg-brand-600 text-white shadow-sm hover:bg-brand-700", compact ? "text-2xl" : "text-3xl"),
     );
 
   const historyList = (
     <div className={cn(compact ? "max-h-56" : "max-h-[32rem]", "overflow-y-auto")}>
       {saved.history.length === 0 ? (
-        <p className="py-6 font-display text-lg italic text-ivory-500">No calculations yet.</p>
+        <p className="py-6 text-[15px] text-slate-500">No calculations yet.</p>
       ) : (
         <ul>
           {saved.history.map((h, i) => (
-            <li key={`${i}-${h.expr}`} className="border-b border-line">
+            <li key={`${i}-${h.expr}`} className="border-b border-line last:border-0">
               <button
                 type="button"
                 onClick={() => {
@@ -268,7 +268,7 @@ export function Calculator({
                   setError(null);
                   focusInput(h.expr.length);
                 }}
-                className="block w-full pt-3 text-right font-sans text-xs text-ivory-400 transition-colors hover:text-ivory"
+                className="block w-full pt-3 text-right text-sm text-slate-500 transition-colors hover:text-brand-600"
                 aria-label={`Reuse expression ${h.expr}`}
               >
                 {h.expr}
@@ -276,7 +276,7 @@ export function Calculator({
               <button
                 type="button"
                 onClick={() => insert(h.plain)}
-                className="block w-full pb-3 text-right font-display text-2xl tabular text-ivory transition-colors hover:text-bronze-300"
+                className="block w-full pb-3 text-right text-xl font-bold tabular text-slate-900 transition-colors hover:text-brand-600"
                 aria-label={`Insert result ${h.display}`}
               >
                 {h.display}
@@ -289,18 +289,18 @@ export function Calculator({
   );
 
   return (
-    <div className={cn(!compact && "grid gap-10 lg:grid-cols-12")}>
-      <div className={cn(!compact && "lg:col-span-7")}>
+    <div className={cn(!compact && "grid gap-6 lg:grid-cols-12")}>
+      <div className={cn(!compact && "card p-4 md:p-5 lg:col-span-7")}>
         {/* Display */}
-        <div className={cn("relative border border-line bg-ink-800/60", compact ? "px-4 pb-3 pt-3" : "px-6 pb-5 pt-5 md:px-8")}>
+        <div className={cn("relative rounded-2xl bg-slate-900 text-white", compact ? "px-4 pb-3 pt-3" : "px-5 pb-4 pt-4 md:px-6")}>
           <div className="flex items-center justify-between">
             <span
-              className="border border-bronze/50 px-2.5 py-1 font-sans text-[0.6rem] uppercase tracking-[0.26em] text-bronze-300"
+              className="rounded-md bg-white/10 px-2 py-0.5 text-xs font-bold uppercase text-amber-300"
               aria-label={`Angle mode: ${saved.mode === "deg" ? "degrees" : "radians"}`}
             >
               {saved.mode === "deg" ? "Deg" : "Rad"}
             </span>
-            <span className="font-sans text-[0.55rem] uppercase tracking-[0.24em] text-ivory-500">
+            <span className="text-xs font-medium text-slate-400">
               Ans = {formatNumber(saved.ans).display}
             </span>
           </div>
@@ -324,7 +324,7 @@ export function Calculator({
             spellCheck={false}
             placeholder="0"
             className={cn(
-              "mt-3 w-full bg-transparent text-right font-sans tracking-wide text-ivory-300 placeholder:text-ivory-500 focus:outline-none",
+              "mt-3 w-full bg-transparent text-right font-sans text-slate-300 placeholder:text-slate-500 focus:outline-none",
               compact ? "text-base" : "text-lg",
             )}
           />
@@ -335,7 +335,7 @@ export function Calculator({
                   key="err"
                   initial={{ opacity: 0, y: reduce ? 0 : 6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="pt-2 font-display text-lg italic text-garnet-300"
+                  className="pt-2 text-base font-medium text-rose-300"
                   role="alert"
                 >
                   {error}
@@ -346,13 +346,13 @@ export function Calculator({
                   initial={{ opacity: 0, y: reduce ? 0 : 10 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: reduce ? 0.1 : 0.45, ease: [0.22, 1, 0.36, 1] }}
-                  className={cn("truncate font-display font-light tabular text-ivory", compact ? "text-4xl" : "text-6xl")}
+                  className={cn("truncate font-bold tabular text-white", compact ? "text-3xl" : "text-5xl")}
                 >
-                  <span className="mr-2 text-[0.5em] text-ivory-500">=</span>
+                  <span className="mr-2 text-[0.5em] text-slate-400">=</span>
                   {result.display}
                 </motion.p>
               ) : (
-                <motion.p key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={cn("truncate font-display font-light tabular text-ivory-500", compact ? "text-4xl" : "text-6xl")}>
+                <motion.p key="preview" initial={{ opacity: 0 }} animate={{ opacity: 1 }} className={cn("truncate font-bold tabular text-slate-500", compact ? "text-3xl" : "text-5xl")}>
                   {preview ?? (expr ? "" : "0")}
                 </motion.p>
               )}
@@ -361,8 +361,8 @@ export function Calculator({
         </div>
 
         {/* Keys */}
-        <div className="mt-3 border-l border-t border-line">
-          <div className="grid grid-cols-5">
+        <div className={cn("mt-3 space-y-2", compact && "space-y-1.5")}>
+          <div className={cn("grid grid-cols-5", compact ? "gap-1.5" : "gap-2")}>
             <button type="button" onClick={toggleMode} className={keyClass({ label: "", aria: "", tone: "util" })} aria-label={`Switch to ${saved.mode === "deg" ? "radians" : "degrees"}`}>
               {saved.mode === "deg" ? "→ Rad" : "→ Deg"}
             </button>
@@ -372,7 +372,7 @@ export function Calculator({
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-5 grid-rows-4">
+          <div className={cn("grid grid-cols-5 grid-rows-4", compact ? "gap-1.5" : "gap-2")}>
             {NUM_KEYS.map((k) => (
               <button key={k.aria} type="button" aria-label={k.aria} onClick={() => press(k)} className={keyClass(k)}>
                 {k.label}
@@ -383,14 +383,14 @@ export function Calculator({
 
         {compact && (
           <div className="mt-3">
-            <button type="button" onClick={() => setShowHistory((v) => !v)} aria-expanded={showHistory} className="link-luxe text-ivory-400">
+            <button type="button" onClick={() => setShowHistory((v) => !v)} aria-expanded={showHistory} className="link-luxe text-sm">
               {showHistory ? "Hide history" : `History (${saved.history.length})`}
             </button>
             {showHistory && (
               <div className="mt-3 border-t border-line">
                 {historyList}
                 {saved.history.length > 0 && (
-                  <button type="button" onClick={() => setSaved((s) => ({ ...s, history: [] }))} className="link-luxe mt-3 text-ivory-500">
+                  <button type="button" onClick={() => setSaved((s) => ({ ...s, history: [] }))} className="link-luxe mt-3 text-sm text-rose-600">
                     Clear history
                   </button>
                 )}
@@ -401,18 +401,18 @@ export function Calculator({
       </div>
 
       {!compact && (
-        <aside aria-label="Calculation history" className="lg:col-span-5">
-          <div className="flex items-baseline justify-between border-b border-line pb-4">
-            <h2 className="eyebrow">History</h2>
+        <aside aria-label="Calculation history" className="card p-5 lg:col-span-5">
+          <div className="flex items-baseline justify-between border-b border-line pb-3">
+            <h2 className="text-lg font-bold text-slate-900">History</h2>
             {saved.history.length > 0 && (
-              <button type="button" onClick={() => setSaved((s) => ({ ...s, history: [] }))} className="link-luxe text-ivory-500">
+              <button type="button" onClick={() => setSaved((s) => ({ ...s, history: [] }))} className="link-luxe text-sm text-rose-600">
                 Clear history
               </button>
             )}
           </div>
           {historyList}
-          <p className="mt-6 font-sans text-[0.6rem] uppercase leading-relaxed tracking-[0.2em] text-ivory-500">
-            Tap an expression to edit it again · tap a result to insert it · Enter = · Esc clears
+          <p className="mt-4 text-sm leading-relaxed text-slate-500">
+            Tap a sum to edit it again · tap an answer to use it · Enter = answer · Esc = clear
           </p>
         </aside>
       )}

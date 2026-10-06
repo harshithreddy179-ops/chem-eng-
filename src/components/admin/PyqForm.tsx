@@ -173,7 +173,7 @@ export function PyqForm({ pyq, relatedIds = [], sections, subjects, chapters, re
                         {r.label ? `${r.label} — ` : ""}
                         {r.title}
                       </span>
-                      <span className="block font-sans text-[0.6rem] uppercase tracking-[0.18em] text-ivory-500">
+                      <span className="block font-sans text-sm text-ivory-500">
                         {RESOURCE_TYPE_LABEL[r.resource_type]} · {sectionName.get(r.section_id) ?? ""}
                       </span>
                     </span>

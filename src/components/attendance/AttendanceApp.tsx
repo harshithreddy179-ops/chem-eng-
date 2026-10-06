@@ -11,7 +11,6 @@ import { DayDetail } from "./DayDetail";
 import { AttendanceSummary, allowanceText } from "./AttendanceSummary";
 import { AttendanceHistory } from "./AttendanceHistory";
 import { StartSetup } from "./StartSetup";
-import { Reveal } from "@/components/motion/Reveal";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { cn } from "@/lib/utils";
 
@@ -110,7 +109,7 @@ function SemesterView({
   return (
     <div>
       {/* ─── Controls ─────────────────────────────────────────────── */}
-      <Reveal className="flex flex-wrap items-end gap-x-10 gap-y-6 border-y border-line py-6">
+      <div className="card flex flex-wrap items-end gap-x-8 gap-y-4 p-4 md:p-5">
         {configs.length > 1 ? (
           <label className="block min-w-[14rem]">
             <span className="field-label">Semester</span>
@@ -126,16 +125,16 @@ function SemesterView({
         ) : (
           <div>
             <p className="field-label">Semester</p>
-            <p className="py-3 font-sans text-sm text-ivory">
+            <p className="py-2.5 text-[15px] font-semibold text-slate-900">
               {semester.name} · {semester.academic_year}
-              {semester.group_label && <span className="text-ivory-400"> · {semester.group_label}</span>}
+              {semester.group_label && <span className="font-normal text-slate-500"> · {semester.group_label}</span>}
             </p>
           </div>
         )}
         {semester.batches.length > 0 && (
           <div>
             <p className="field-label">Lab batch</p>
-            <div role="radiogroup" aria-label="Lab batch" className="flex border border-line">
+            <div role="radiogroup" aria-label="Lab batch" className="flex gap-1 rounded-xl bg-slate-100 p-1">
               {[null, ...semester.batches].map((b) => (
                 <button
                   key={b ?? "all"}
@@ -144,11 +143,11 @@ function SemesterView({
                   aria-checked={state.batch === b}
                   onClick={() => updateSemester(semester.id, (s) => ({ ...s, batch: b }))}
                   className={cn(
-                    "px-4 py-2.5 font-sans text-[0.62rem] uppercase tracking-[0.22em] transition-colors duration-500",
-                    state.batch === b ? "bg-ivory text-ink" : "text-ivory-400 hover:text-ivory",
+                    "rounded-lg px-4 py-2 text-[15px] font-semibold transition",
+                    state.batch === b ? "bg-white text-brand-700 shadow-sm" : "text-slate-600 hover:text-slate-900",
                   )}
                 >
-                  {b ?? "All"}
+                  {b ?? "Both"}
                 </button>
               ))}
             </div>
@@ -161,7 +160,7 @@ function SemesterView({
             min={1}
             max={100}
             inputMode="numeric"
-            className="field font-display text-xl tabular"
+            className="field text-lg font-semibold tabular"
             value={target}
             onChange={(e) => {
               const v = Math.min(100, Math.max(1, Number(e.target.value) || semester.target_percent));
@@ -170,14 +169,14 @@ function SemesterView({
           />
         </label>
         {state.start && !editingStart && (
-          <button type="button" onClick={() => setEditingStart(true)} className="link-luxe mb-3 text-ivory-400">
+          <button type="button" onClick={() => setEditingStart(true)} className="btn-luxe mb-0.5 px-4 py-2.5 text-sm">
             {checkpoint ? "Edit notice figures" : "Change starting point"}
           </button>
         )}
-      </Reveal>
+      </div>
 
       {needsSetup ? (
-        <div className="mt-12">
+        <div className="mt-6">
           <StartSetup
             courses={courses}
             checkpoints={checkpoints}
@@ -193,35 +192,40 @@ function SemesterView({
       ) : (
         <>
           {/* ─── Overall ─────────────────────────────────────────────── */}
-          <Reveal className="mt-14 grid gap-10 md:grid-cols-12 md:items-end">
-            <div className="md:col-span-6">
-              <p className="eyebrow">Overall attendance</p>
-              <p className={cn("mt-4 font-display text-[clamp(5rem,16vw,10rem)] font-light leading-[0.85] tabular", overallPct != null && overallPct < target ? "text-garnet-300" : "text-ivory")}>
-                {formatPercent(overallPct)}
-                {overallPct != null && <span className="ml-1 align-top text-[0.3em] text-ivory-400">%</span>}
-              </p>
-              <p className="mt-4 font-sans text-xs uppercase tracking-[0.24em] text-ivory-400 tabular">
-                {stats.overall.attended} / {stats.overall.held} classes attended
-              </p>
+          <div className="mt-6 grid gap-4 md:grid-cols-12">
+            <div
+              className={cn(
+                "card flex items-center gap-5 p-5 md:col-span-5",
+                overallPct == null ? "" : overallPct < target ? "border-rose-200 bg-rose-50" : "border-emerald-200 bg-emerald-50",
+              )}
+            >
+              <div>
+                <p className="text-[15px] font-semibold text-slate-600">Overall attendance</p>
+                <p className={cn("mt-1 text-6xl font-bold leading-none tabular", overallPct == null ? "text-slate-400" : overallPct < target ? "text-rose-600" : "text-emerald-600")}>
+                  {formatPercent(overallPct)}
+                  {overallPct != null && <span className="text-3xl">%</span>}
+                </p>
+                <p className="mt-2 text-[15px] text-slate-600 tabular">
+                  {stats.overall.attended} of {stats.overall.held} classes attended
+                </p>
+              </div>
             </div>
-            <div className="space-y-3 md:col-span-6">
-              <p className="font-display text-xl italic leading-snug text-ivory-200">
-                {allowanceText({ ...stats.overall, remaining }, target)}
-              </p>
-              <p className="font-sans text-[0.62rem] uppercase tracking-[0.2em] text-ivory-500">
+            <div className="card space-y-2 p-5 md:col-span-7">
+              <p className="text-lg font-semibold leading-snug text-slate-900">{allowanceText({ ...stats.overall, remaining }, target)}</p>
+              <p className="text-sm text-slate-500">
                 {checkpoint ? `${checkpoint.label} + ` : ""}classes marked from {formatShort(stats.trackFrom)} · {remaining} classes left this semester
               </p>
               {stats.unmarked > 0 && firstUnmarked && (
-                <button type="button" onClick={() => open(firstUnmarked)} className="link-luxe text-bronze-300">
-                  {stats.unmarked} past {stats.unmarked === 1 ? "class" : "classes"} not marked — start at {formatShort(firstUnmarked)} →
+                <button type="button" onClick={() => open(firstUnmarked)} className="mt-1 inline-flex items-center gap-2 rounded-xl bg-amber-50 px-3.5 py-2 text-left text-[15px] font-semibold text-amber-800 hover:bg-amber-100">
+                  {stats.unmarked} past {stats.unmarked === 1 ? "class is" : "classes are"} not marked. Start from {formatShort(firstUnmarked)} →
                 </button>
               )}
             </div>
-          </Reveal>
+          </div>
 
           {/* ─── Calendar + day ──────────────────────────────────────── */}
-          <div className="mt-20 grid gap-10 lg:grid-cols-12 lg:gap-12">
-            <div className="lg:col-span-7">
+          <div className="mt-6 grid gap-6 lg:grid-cols-12">
+            <div className="card p-4 md:p-5 lg:col-span-7">
               <AttendanceCalendar
                 index={index}
                 state={state}
@@ -233,8 +237,8 @@ function SemesterView({
                 trackFrom={stats.trackFrom}
               />
             </div>
-            <div id="day-detail" className="scroll-mt-28 lg:col-span-5">
-              <div className="lg:sticky lg:top-28">
+            <div id="day-detail" className="scroll-mt-24 lg:col-span-5">
+              <div className="lg:sticky lg:top-24">
                 <DayDetail
                   day={day}
                   today={today}
@@ -246,11 +250,11 @@ function SemesterView({
                   onMark={(key, status) => setMark(semester.id, key, status)}
                   onMarkAll={(keys, status) => setMarks(semester.id, keys.map((k) => [k, status]))}
                 />
-                <div className="mt-4 flex justify-between">
-                  <button type="button" onClick={() => open(addDays(selected, -1))} disabled={selected <= semester.start_date} className="link-luxe text-ivory-400 disabled:opacity-30">
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <button type="button" onClick={() => open(addDays(selected, -1))} disabled={selected <= semester.start_date} className="btn-luxe">
                     ← Previous day
                   </button>
-                  <button type="button" onClick={() => open(addDays(selected, 1))} disabled={selected >= semester.end_date} className="link-luxe text-ivory-400 disabled:opacity-30">
+                  <button type="button" onClick={() => open(addDays(selected, 1))} disabled={selected >= semester.end_date} className="btn-luxe">
                     Next day →
                   </button>
                 </div>
@@ -259,28 +263,28 @@ function SemesterView({
           </div>
 
           {/* ─── Subjects ────────────────────────────────────────────── */}
-          <section aria-labelledby="subjects-attendance" className="mt-28">
-            <Reveal className="mb-8 flex items-baseline justify-between gap-6">
-              <h2 id="subjects-attendance" className="eyebrow">
-                <span className="text-bronze">II</span> &nbsp;— &nbsp;By subject
+          <section aria-labelledby="subjects-attendance" className="mt-10">
+            <div className="mb-4 flex items-baseline justify-between gap-6">
+              <h2 id="subjects-attendance" className="text-xl font-bold text-slate-900">
+                Subject-wise attendance
               </h2>
-              <span className="eyebrow text-ivory-500">Target {target}%</span>
-            </Reveal>
+              <span className="chip bg-slate-100 text-slate-600">Target {target}%</span>
+            </div>
             <AttendanceSummary courses={courses} stats={stats.courses} target={target} />
           </section>
 
           {/* ─── History ─────────────────────────────────────────────── */}
-          <section aria-labelledby="history-title" className="mt-28">
-            <Reveal className="mb-8">
-              <h2 id="history-title" className="eyebrow">
-                <span className="text-bronze">III</span> &nbsp;— &nbsp;History
+          <section aria-labelledby="history-title" className="mt-10">
+            <div className="mb-4">
+              <h2 id="history-title" className="text-xl font-bold text-slate-900">
+                Class history
               </h2>
-            </Reveal>
+            </div>
             <AttendanceHistory courses={courses} stats={stats.courses} onOpen={open} />
           </section>
 
-          <p className="mt-20 font-sans text-[0.62rem] uppercase tracking-[0.2em] text-ivory-500">
-            Your marks are saved privately on this device. Cancelled classes, holidays and upcoming classes never count.
+          <p className="mt-8 rounded-2xl bg-slate-50 p-4 text-sm text-slate-600">
+            Your marks are saved only on this device. Cancelled classes, holidays and future classes are not counted.
           </p>
         </>
       )}

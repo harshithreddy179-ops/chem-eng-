@@ -41,7 +41,7 @@ export function ResourceForm({ resource, sections, subjects, chapters, defaults 
               {sections.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
-                  {!s.is_enabled ? " (disabled)" : ""}
+                  {!s.is_enabled ? "(disabled)" : ""}
                 </option>
               ))}
             </select>
@@ -52,7 +52,7 @@ export function ResourceForm({ resource, sections, subjects, chapters, defaults 
               {subjects.map((s) => (
                 <option key={s.id} value={s.id}>
                   {s.name}
-                  {!s.is_enabled ? " (disabled)" : ""}
+                  {!s.is_enabled ? "(disabled)" : ""}
                 </option>
               ))}
             </select>

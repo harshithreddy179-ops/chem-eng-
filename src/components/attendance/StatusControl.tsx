@@ -1,17 +1,16 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
-import { useId } from "react";
+import { Ban, Check, X } from "lucide-react";
 import type { MarkStatus } from "@/types/attendance";
 import { cn } from "@/lib/utils";
 
-const OPTIONS: { value: MarkStatus; label: string; symbol: string }[] = [
-  { value: "present", label: "Present", symbol: "✓" },
-  { value: "absent", label: "Absent", symbol: "✕" },
-  { value: "cancelled", label: "Cancelled", symbol: "—" },
+const OPTIONS: { value: MarkStatus; label: string; icon: typeof Check; on: string; off: string }[] = [
+  { value: "present", label: "Present", icon: Check, on: "border-emerald-500 bg-emerald-500 text-white", off: "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-400" },
+  { value: "absent", label: "Absent", icon: X, on: "border-rose-500 bg-rose-500 text-white", off: "border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-400" },
+  { value: "cancelled", label: "Cancelled", icon: Ban, on: "border-slate-500 bg-slate-500 text-white", off: "border-slate-200 bg-slate-50 text-slate-600 hover:border-slate-400" },
 ];
 
-/** Three-way segmented control. Choosing the active option again clears it. */
+/** Present / Absent / Cancelled buttons. Tapping the chosen one again clears it. */
 export function StatusControl({
   value,
   onChange,
@@ -23,10 +22,8 @@ export function StatusControl({
   label: string;
   planned?: boolean;
 }) {
-  const id = useId();
-  const reduce = useReducedMotion();
   return (
-    <div role="radiogroup" aria-label={label} className="relative grid grid-cols-3 border border-line">
+    <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-2">
       {OPTIONS.map((o) => {
         const active = value === o.value;
         return (
@@ -37,29 +34,12 @@ export function StatusControl({
             aria-checked={active}
             onClick={() => onChange(active ? null : o.value)}
             className={cn(
-              "relative z-10 flex items-center justify-center gap-2 px-2 py-3 font-sans text-[0.6rem] uppercase tracking-[0.2em] transition-colors duration-500 sm:text-[0.62rem]",
-              active
-                ? o.value === "present"
-                  ? "text-ink"
-                  : "text-ivory"
-                : "text-ivory-400 hover:text-ivory",
+              "flex items-center justify-center gap-1.5 rounded-xl border-2 px-2 py-2.5 text-sm font-bold transition",
+              active ? o.on : o.off,
+              active && planned && "opacity-70",
             )}
           >
-            {active && (
-              <motion.span
-                layoutId={`status-${id}`}
-                className={cn(
-                  "absolute inset-0 -z-10",
-                  o.value === "present" && (planned ? "bg-bronze/60" : "bg-bronze"),
-                  o.value === "absent" && "border border-ivory/60 bg-ivory/[0.08]",
-                  o.value === "cancelled" && "bg-ivory/[0.06]",
-                )}
-                transition={{ duration: reduce ? 0 : 0.45, ease: [0.22, 1, 0.36, 1] }}
-              />
-            )}
-            <span aria-hidden className="font-display text-sm normal-case tracking-normal">
-              {o.symbol}
-            </span>
+            <o.icon className="h-4 w-4" strokeWidth={2.5} />
             {o.label}
           </button>
         );

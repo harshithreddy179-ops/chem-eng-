@@ -1,20 +1,13 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { GraduationCap } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ProgressBar } from "@/components/ui/ProgressBar";
-import { ProgressStat } from "@/components/ui/ProgressStat";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { TextReveal } from "@/components/motion/TextReveal";
-import { Reveal } from "@/components/motion/Reveal";
 import { SubjectIndex } from "@/components/archive/SubjectIndex";
-import {
-  getArchiveIndex,
-  getSectionBySlug,
-  getSections,
-  getSubjects,
-  resourceCount,
-  trackableKeys,
-} from "@/lib/data/public";
+import { sectionTheme } from "@/lib/palette";
+import { getArchiveIndex, getSectionBySlug, getSections, getSubjects, resourceCount, trackableKeys } from "@/lib/data/public";
+import { cn } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -31,7 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!section) return { title: "Not found" };
   return {
     title: section.name,
-    description: `${section.name} — lecture material, PYQs and chapter progress for every subject.`,
+    description: `${section.name}: notes, lecture slides and PYQs for every subject.`,
     alternates: { canonical: `/archive/${section.slug}` },
   };
 }
@@ -41,6 +34,7 @@ export default async function SectionPage({ params }: { params: Promise<Params> 
   const [section, subjects, index] = await Promise.all([getSectionBySlug(slug), getSubjects(), getArchiveIndex()]);
   if (!section) notFound();
 
+  const t = sectionTheme(section.slug);
   const sectionKeys = trackableKeys(index, { sectionId: section.id });
   const totalResources = resourceCount(index, { sectionId: section.id });
   const rows = subjects.map((subject) => ({
@@ -52,55 +46,34 @@ export default async function SectionPage({ params }: { params: Promise<Params> 
   }));
 
   return (
-    <div className="frame pb-10 pt-36 md:pt-44">
-      <Breadcrumbs items={[{ href: "/archive", label: "Archive" }, { label: section.name }]} />
-
-      <div className="grid gap-14 md:grid-cols-12 md:items-end">
-        <div className="md:col-span-7">
-          <Reveal y={10}>
-            <p className="eyebrow">
-              <span className="text-bronze">Academic section</span> &nbsp;·&nbsp; {subjects.length} subjects
-            </p>
-          </Reveal>
-          <TextReveal
-            as="h1"
-            immediate
-            delay={0.1}
-            className="mt-8 font-display text-display-xl font-light uppercase"
-            lines={section.name.split(" ").map((w, i) => (i > 0 ? <em key={i} className="italic text-ivory-200">{w}</em> : w))}
-          />
-          <Reveal delay={0.5}>
-            <p className="mt-8 font-sans text-xs uppercase tracking-[0.3em] text-bronze-300">
-              <ProgressStat keys={sectionKeys} />
-            </p>
-            {section.description && (
-              <p className="mt-6 max-w-lg font-display text-xl italic text-ivory-300">{section.description}</p>
-            )}
-          </Reveal>
-        </div>
-        <Reveal delay={0.4} className="md:col-span-4 md:col-start-9">
-          <ProgressBar keys={sectionKeys} label={`${section.name} progress`} />
-        </Reveal>
-      </div>
-
-      {totalResources === 0 && (
-        <Reveal className="mt-20">
+    <>
+      <PageHeader
+        crumbs={[{ href: "/archive", label: "Study Material" }, { label: section.name }]}
+        icon={
+          <span className={cn("hidden h-14 w-14 shrink-0 place-items-center rounded-2xl text-white shadow-sm sm:grid", t.solid)}>
+            <GraduationCap className="h-7 w-7" />
+          </span>
+        }
+        title={section.name}
+        subtitle={section.description ?? "Choose a subject to see its chapters, notes and question papers."}
+        aside={
+          <div className="card p-4">
+            <ProgressBar keys={sectionKeys} label={`${section.name} progress`} size="sm" />
+          </div>
+        }
+      />
+      <div className="frame py-10">
+        {totalResources === 0 && (
           <EmptyState
             compact
-            index="Note"
-            title={`${section.name} is being assembled`}
-            message="Lectures, notes and question papers will appear inside each subject as they are added."
+            className="mb-8"
+            title={`Nothing added to ${section.name} yet`}
+            message="Notes and question papers will show up inside each subject once they are uploaded."
           />
-        </Reveal>
-      )}
-
-      <section aria-label="Subjects" className="mt-20 md:mt-28">
-        <Reveal className="mb-8 flex items-baseline justify-between">
-          <h2 className="eyebrow">The subjects</h2>
-          <span className="eyebrow text-ivory-500">Choose one</span>
-        </Reveal>
+        )}
+        <h2 className="mb-4 text-xl font-bold text-slate-900">Subjects</h2>
         <SubjectIndex rows={rows} />
-      </section>
-    </div>
+      </div>
+    </>
   );
 }

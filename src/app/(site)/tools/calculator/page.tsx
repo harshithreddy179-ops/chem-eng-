@@ -1,26 +1,31 @@
 import type { Metadata } from "next";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { PageHeader } from "@/components/ui/PageHeader";
+import { ToolGlyph, TOOL_STYLE } from "@/components/tools/ToolGlyph";
 import { Calculator } from "@/components/calculator/Calculator";
 
 export const metadata: Metadata = {
   title: "Scientific Calculator",
-  description: "A precise scientific calculator — trigonometry in degrees or radians, logarithms, powers, factorials and scientific notation.",
+  description: "Free scientific calculator: sin, cos, tan in degrees or radians, log, ln, powers, factorials and scientific notation.",
   alternates: { canonical: "/tools/calculator" },
 };
 
 export default function CalculatorPage() {
   return (
-    <div className="frame pb-10 pt-32 md:pt-40">
-      <Breadcrumbs items={[{ href: "/tools", label: "Tools" }, { label: "Scientific Calculator" }]} />
-      <SectionHeading as="h1" size="lg" index="03" eyebrow="Tools" title={["Scientific", "Calculator"]} lede="Calculate precisely." align="split" />
-      <div className="mt-16 md:mt-20">
+    <>
+      <PageHeader
+        crumbs={[{ href: "/tools", label: "Tools" }, { label: "Calculator" }]}
+        tint={TOOL_STYLE.calculator.tint}
+        icon={<ToolGlyph slug="calculator" size="lg" solid />}
+        title="Scientific Calculator"
+        subtitle="Type with your keyboard or tap the buttons. Press Enter to get the answer."
+      />
+      <div className="frame py-8">
         <Calculator autoFocus />
+        <div className="mt-6 rounded-2xl bg-slate-50 p-4 text-[15px] leading-relaxed text-slate-600">
+          <b className="text-slate-800">Tips:</b> brackets close on their own · 2π and 3(4) multiply automatically · EXP is for numbers like 1.23E-6 ·
+          the <b className="text-slate-800">Calc</b> button at the bottom corner of every page opens this calculator anywhere.
+        </div>
       </div>
-      <p className="mt-10 max-w-2xl font-sans text-xs leading-relaxed text-ivory-500">
-        Type freely or use the keys. Brackets close themselves; 2π and 3(4) multiply implicitly; EXP enters scientific notation (1.23E-6).
-        The CALC button in the corner of every page opens this same instrument without leaving what you&rsquo;re reading.
-      </p>
-    </div>
+    </>
   );
 }

@@ -8,11 +8,11 @@ import type { SearchEntry, SearchKind } from "@/types";
 import { cn } from "@/lib/utils";
 
 const GROUPS: { kind: SearchKind; label: string }[] = [
-  { kind: "section", label: "Sections" },
+  { kind: "section", label: "Exams" },
   { kind: "subject", label: "Subjects" },
   { kind: "chapter", label: "Chapters" },
-  { kind: "resource", label: "Resources" },
-  { kind: "pyq", label: "Previous Year Questions" },
+  { kind: "resource", label: "Notes & Papers" },
+  { kind: "pyq", label: "PYQs" },
 ];
 
 let cache: SearchEntry[] | null = null;
@@ -114,7 +114,7 @@ export function SearchCommand({ open, onClose }: { open: boolean; onClose: () =>
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-[60] flex items-start justify-center bg-ink/80 px-4 pt-[12vh] backdrop-blur-md"
+          className="fixed inset-0 z-[60] flex items-start justify-center bg-slate-900/40 px-4 pt-[10vh] backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -125,43 +125,43 @@ export function SearchCommand({ open, onClose }: { open: boolean; onClose: () =>
             role="dialog"
             aria-modal="true"
             aria-label="Search the archive"
-            className="w-full max-w-2xl border border-line bg-ink-800 shadow-[0_40px_120px_-20px_rgba(0,0,0,0.8)]"
+            className="w-full max-w-2xl overflow-hidden rounded-2xl border border-line bg-white shadow-2xl"
             initial={{ opacity: 0, y: reduce ? 0 : 16, scale: reduce ? 1 : 0.99 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: reduce ? 0 : 8 }}
             transition={{ duration: reduce ? 0.1 : 0.5, ease: [0.22, 1, 0.36, 1] }}
             onKeyDown={onKeyDown}
           >
-            <div className="flex items-center gap-4 border-b border-line px-6">
-              <Search className="h-4 w-4 shrink-0 text-bronze" strokeWidth={1.25} aria-hidden />
+            <div className="flex items-center gap-3 border-b border-line px-5">
+              <Search className="h-5 w-5 shrink-0 text-brand-600" aria-hidden />
               <input
                 ref={inputRef}
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Search subjects, chapters, resources, questions…"
-                className="h-16 w-full bg-transparent font-display text-xl text-ivory placeholder:italic placeholder:text-ivory-500 focus:outline-none"
+                placeholder="Search subjects, chapters, notes, questions…"
+                className="h-14 w-full bg-transparent text-lg text-slate-900 placeholder:text-slate-400 focus:outline-none"
                 role="combobox"
                 aria-expanded="true"
                 aria-controls="search-results"
                 aria-activedescendant={flat[active] ? `search-opt-${active}` : undefined}
                 aria-autocomplete="list"
               />
-              <kbd className="hidden font-sans text-[0.6rem] uppercase tracking-widest text-ivory-500 sm:block">Esc</kbd>
+              <kbd className="hidden rounded-md border border-slate-200 px-1.5 py-0.5 text-xs font-semibold text-slate-500 sm:block">Esc</kbd>
             </div>
 
-            <div ref={listRef} id="search-results" role="listbox" className="max-h-[55vh] overflow-y-auto py-3">
-              {loading && <p className="px-6 py-8 font-display text-lg italic text-ivory-400">Opening the index…</p>}
+            <div ref={listRef} id="search-results" role="listbox" className="max-h-[55vh] overflow-y-auto p-2">
+              {loading && <p className="px-4 py-8 text-[15px] text-slate-500">Loading…</p>}
               {!loading && results.length === 0 && (
-                <div className="px-6 py-10">
-                  <p className="font-display text-2xl font-light uppercase">Nothing found</p>
-                  <p className="mt-2 font-display text-lg italic text-ivory-400">
-                    {query ? "Try a different word — the archive grows as material is added." : "The archive is being assembled."}
+                <div className="px-4 py-10 text-center">
+                  <p className="text-lg font-bold text-slate-900">Nothing found</p>
+                  <p className="mt-1 text-[15px] text-slate-500">
+                    {query ? "Try a different word." : "Nothing has been added yet."}
                   </p>
                 </div>
               )}
               {results.map((group) => (
                 <div key={group.kind} className="pb-2" role="group" aria-label={group.label}>
-                  <p className="eyebrow px-6 pb-2 pt-4 text-ivory-500">{group.label}</p>
+                  <p className="px-3 pb-1.5 pt-3 text-sm font-bold text-slate-500">{group.label}</p>
                   {group.items.map((item) => {
                     running += 1;
                     const idx = running;
@@ -178,20 +178,20 @@ export function SearchCommand({ open, onClose }: { open: boolean; onClose: () =>
                         onMouseMove={() => setActive(idx)}
                         onClick={() => go(item)}
                         className={cn(
-                          "flex w-full items-center justify-between gap-6 border-l px-6 py-3 text-left transition-colors duration-300",
-                          isActive ? "border-bronze bg-ivory/[0.04]" : "border-transparent",
+                          "flex w-full items-center justify-between gap-4 rounded-xl px-3 py-2.5 text-left transition-colors",
+                          isActive ? "bg-brand-50" : "",
                         )}
                       >
                         <span className="min-w-0">
-                          <span className="block truncate font-sans text-[0.95rem] text-ivory">{item.title}</span>
-                          <span className="mt-1 block truncate font-sans text-[0.65rem] uppercase tracking-[0.18em] text-ivory-500">
+                          <span className="block truncate text-[15px] font-semibold text-slate-900">{item.title}</span>
+                          <span className="block truncate text-sm text-slate-500">
                             {item.meta}
                           </span>
                         </span>
                         {item.external ? (
-                          <ArrowUpRight className={cn("h-4 w-4 shrink-0", isActive ? "text-bronze" : "text-ivory-500")} strokeWidth={1.25} />
+                          <ArrowUpRight className={cn("h-4 w-4 shrink-0", isActive ? "text-brand-600" : "text-slate-400")} />
                         ) : (
-                          <CornerDownLeft className={cn("h-3.5 w-3.5 shrink-0", isActive ? "text-bronze" : "text-transparent")} strokeWidth={1.25} />
+                          <CornerDownLeft className={cn("h-4 w-4 shrink-0", isActive ? "text-brand-600" : "text-transparent")} />
                         )}
                       </button>
                     );
@@ -199,9 +199,9 @@ export function SearchCommand({ open, onClose }: { open: boolean; onClose: () =>
                 </div>
               ))}
             </div>
-            <div className="flex justify-between border-t border-line px-6 py-3 font-sans text-[0.6rem] uppercase tracking-[0.2em] text-ivory-500">
-              <span>↑ ↓ to navigate · ↵ to open</span>
-              <span>Drive files open in a new tab</span>
+            <div className="flex justify-between border-t border-line bg-slate-50 px-5 py-2.5 text-sm text-slate-500">
+              <span>↑ ↓ to move · Enter to open</span>
+              <span className="hidden sm:inline">Files open in a new tab</span>
             </div>
           </motion.div>
         </motion.div>

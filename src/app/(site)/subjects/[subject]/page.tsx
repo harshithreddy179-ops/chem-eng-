@@ -1,22 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
+import { ArrowRight, FileQuestion, GraduationCap } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { ProgressRing } from "@/components/ui/ProgressRing";
-import { TextReveal } from "@/components/motion/TextReveal";
-import { Reveal } from "@/components/motion/Reveal";
-import { SubjectMotif } from "@/components/visual/SubjectMotif";
-import {
-  getArchiveIndex,
-  getPyqCountsBySubject,
-  getSections,
-  getSubjectBySlug,
-  getSubjects,
-  resourceCount,
-  trackableKeys,
-} from "@/lib/data/public";
-import { pad } from "@/lib/utils";
+import { SubjectIcon } from "@/components/ui/SubjectIcon";
+import { sectionTheme, subjectTheme } from "@/lib/palette";
+import { getArchiveIndex, getPyqCountsBySubject, getSections, getSubjectBySlug, getSubjects, resourceCount, trackableKeys } from "@/lib/data/public";
+import { cn } from "@/lib/utils";
 
 export const revalidate = 300;
 
@@ -33,84 +25,68 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (!subject) return { title: "Not found" };
   return {
     title: subject.name,
-    description: subject.description ?? `${subject.name} across every exam in The Chemical Archive.`,
+    description: `${subject.name}: notes, slides and PYQs for every exam.`,
     alternates: { canonical: `/subjects/${subject.slug}` },
   };
 }
 
-/** A subject across every academic section. */
+/** One subject across every exam. */
 export default async function SubjectHubPage({ params }: { params: Promise<Params> }) {
   const { subject: slug } = await params;
-  const [subject, sections, index, pyqCounts] = await Promise.all([
-    getSubjectBySlug(slug),
-    getSections(),
-    getArchiveIndex(),
-    getPyqCountsBySubject(),
-  ]);
+  const [subject, sections, index, pyqCounts] = await Promise.all([getSubjectBySlug(slug), getSections(), getArchiveIndex(), getPyqCountsBySubject()]);
   if (!subject) notFound();
   const keys = trackableKeys(index, { subjectId: subject.id });
   const pyqCount = pyqCounts[subject.id] ?? 0;
+  const t = subjectTheme(subject.slug);
 
   return (
-    <div className="frame pb-10 pt-36 md:pt-44">
-      <Breadcrumbs items={[{ href: "/archive", label: "Archive" }, { label: subject.name }]} />
-      <div className="grid gap-16 lg:grid-cols-12 lg:items-end">
-        <div className="lg:col-span-7">
-          <Reveal y={10}>
-            <p className="eyebrow">
-              <span className="text-bronze">Subject</span> &nbsp;·&nbsp; Across {sections.length} sections
-            </p>
-          </Reveal>
-          <TextReveal as="h1" immediate delay={0.1} className="mt-8 font-display text-display-lg font-light uppercase" lines={[subject.name]} />
-          {subject.description && (
-            <Reveal delay={0.4}>
-              <p className="mt-8 max-w-xl font-display text-2xl italic leading-snug text-ivory-200">{subject.description}</p>
-            </Reveal>
-          )}
-        </div>
-        <Reveal delay={0.3} className="lg:col-span-4 lg:col-start-9">
-          <div className="mb-10 aspect-[5/4] border border-line p-8 text-ivory/50">
-            <SubjectMotif slug={subject.slug} />
+    <>
+      <PageHeader
+        crumbs={[{ href: "/archive", label: "Study Material" }, { label: subject.name }]}
+        tint={cn("from-white via-white", t.soft.replace("bg-", "to-"))}
+        icon={<SubjectIcon slug={subject.slug} size="lg" className="hidden sm:inline-grid" />}
+        title={subject.name}
+        subtitle="Choose an exam to open this subject's notes and question papers."
+        aside={
+          <div className="card space-y-4 p-4">
+            <ProgressBar keys={keys} label="Your progress" size="sm" fill={t.solid} />
+            <Link href={`/pyqs?subject=${subject.slug}`} className="btn-luxe w-full">
+              <FileQuestion className="h-5 w-5 text-orange-500" /> {pyqCount > 0 ? `Solve ${pyqCount} PYQs` : "Go to PYQs"}
+            </Link>
           </div>
-          <ProgressBar keys={keys} label="Progress in this subject" size="sm" />
-        </Reveal>
-      </div>
-
-      <section aria-label="Sections" className="mt-24 md:mt-32">
-        <Reveal className="mb-8 flex items-baseline justify-between">
-          <h2 className="eyebrow">Choose an exam</h2>
-          <Link href={`/pyqs?subject=${subject.slug}`} className="link-luxe text-bronze-300">
-            {pyqCount > 0 ? `${pyqCount} questions in the vault →` : "PYQ vault →"}
-          </Link>
-        </Reveal>
-        <ol className="grid border-t border-line sm:grid-cols-2 lg:grid-cols-4">
-          {sections.map((section, i) => {
+        }
+      />
+      <div className="frame py-10">
+        <h2 className="mb-4 text-xl font-bold text-slate-900">Exams</h2>
+        <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {sections.map((section) => {
             const sKeys = trackableKeys(index, { sectionId: section.id, subjectId: subject.id });
             const count = resourceCount(index, { sectionId: section.id, subjectId: subject.id });
+            const st = sectionTheme(section.slug);
             return (
-              <li key={section.id} className="border-b border-line sm:odd:border-r lg:border-r lg:[&:nth-child(4n)]:border-r-0">
-                <Link
-                  href={`/archive/${section.slug}/${subject.slug}`}
-                  className="group flex h-full min-h-[13rem] flex-col justify-between p-6 transition-colors duration-700 hover:bg-ivory/[0.025] md:p-8"
-                >
+              <li key={section.id}>
+                <Link href={`/archive/${section.slug}/${subject.slug}`} className={cn("card card-hover group flex h-full flex-col gap-4 p-5", count === 0 && "opacity-75")}>
                   <div className="flex items-start justify-between">
-                    <span className="font-sans text-[0.62rem] tabular tracking-[0.3em] text-bronze">{pad(i + 1)}</span>
-                    <ProgressRing keys={sKeys} size={40} label={`${section.name} progress`} />
+                    <span className={cn("grid h-11 w-11 place-items-center rounded-xl", st.soft, st.text)}>
+                      <GraduationCap className="h-6 w-6" />
+                    </span>
+                    {sKeys.length > 0 && <ProgressRing keys={sKeys} size={44} label={`${section.name} progress`} color={t.hex} />}
                   </div>
                   <div>
-                    <p className="font-display text-3xl font-light uppercase transition-transform duration-700 ease-luxe group-hover:translate-x-1.5">
-                      {section.name}
-                    </p>
-                    <p className="mt-2 font-sans text-[0.62rem] uppercase tracking-[0.24em] text-ivory-500">
-                      <span className="tabular">{count}</span> resources
-                    </p>
+                    <p className="font-display text-2xl font-bold text-slate-900">{section.name}</p>
+                    <p className="text-[15px] text-slate-500">{count ? `${count} files` : "Nothing added yet"}</p>
                   </div>
+                  {count > 0 && (
+                    <span className={cn("mt-auto inline-flex items-center gap-1.5 text-[15px] font-semibold", t.text)}>
+                      Open <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />
+                    </span>
+                  )}
                 </Link>
               </li>
             );
           })}
-        </ol>
-      </section>
-    </div>
+        </ul>
+      </div>
+    </>
   );
 }

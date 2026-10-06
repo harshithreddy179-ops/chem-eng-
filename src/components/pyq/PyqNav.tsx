@@ -3,8 +3,9 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 import type { PyqNavItem } from "@/lib/pyq-order";
-import { cn, pad } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 interface Props {
   prev: PyqNavItem | null;
@@ -18,7 +19,7 @@ function paper(item: PyqNavItem) {
   return [item.year, item.section_name ?? item.exam].join(" · ");
 }
 
-/** Previous / next question within the subject. ← and → keys work too. */
+/** Previous / next question in the same subject. ← and → keys work too. */
 export function PyqNav({ prev, next, position, total, subjectName }: Props) {
   const router = useRouter();
 
@@ -37,28 +38,35 @@ export function PyqNav({ prev, next, position, total, subjectName }: Props) {
   if (total < 2 || position === 0) return null;
 
   return (
-    <nav aria-label="Question navigation" className="mt-20">
-      <p className="mb-4 font-sans text-[0.6rem] uppercase tracking-[0.26em] text-ivory-500">
-        {subjectName ? `${subjectName} · ` : ""}Question {position} of {total}
-      </p>
-      <div className="grid grid-cols-2 border border-line">
-        <NavCell item={prev} dir="prev" />
-        <NavCell item={next} dir="next" />
+    <nav aria-label="Question navigation" className="card p-4">
+      <div className="mb-3 flex items-center justify-between gap-3 text-sm">
+        <span className="font-semibold text-slate-700">
+          Question {position} of {total}
+          {subjectName && <span className="font-normal text-slate-500"> in {subjectName}</span>}
+        </span>
+        <span className="hidden text-slate-400 sm:inline">Tip: use ← → keys</span>
+      </div>
+      <div className="mb-4 h-2 overflow-hidden rounded-full bg-slate-100">
+        <div className="h-full rounded-full bg-brand-600" style={{ width: `${(position / total) * 100}%` }} />
+      </div>
+      <div className="grid grid-cols-2 gap-3">
+        <NavButton item={prev} dir="prev" />
+        <NavButton item={next} dir="next" />
       </div>
     </nav>
   );
 }
 
-function NavCell({ item, dir }: { item: PyqNavItem | null; dir: "prev" | "next" }) {
+function NavButton({ item, dir }: { item: PyqNavItem | null; dir: "prev" | "next" }) {
   const isNext = dir === "next";
-  const base = cn("flex min-h-28 flex-col justify-between gap-4 p-5 sm:p-7", isNext ? "items-end border-l border-line text-right" : "items-start");
-  const label = isNext ? "Next question →" : "← Previous question";
+  const label = isNext ? "Next question" : "Previous question";
+  const base = cn("flex items-center gap-3 rounded-xl px-4 py-3", isNext ? "flex-row-reverse text-right" : "");
 
   if (!item) {
     return (
-      <div className={cn(base, "opacity-30")} aria-hidden>
-        <span className="font-sans text-[0.6rem] uppercase tracking-[0.26em] text-ivory-400">{label}</span>
-        <span className="font-display text-lg italic text-ivory-500">{isNext ? "End of the vault" : "First question"}</span>
+      <div className={cn(base, "border border-dashed border-slate-200 text-slate-400")} aria-hidden>
+        {isNext ? <ArrowRight className="h-5 w-5" /> : <ArrowLeft className="h-5 w-5" />}
+        <span className="text-[15px] font-semibold">{isNext ? "Last question" : "First question"}</span>
       </div>
     );
   }
@@ -67,17 +75,15 @@ function NavCell({ item, dir }: { item: PyqNavItem | null; dir: "prev" | "next" 
     <Link
       href={`/pyqs/${item.id}`}
       rel={dir}
-      aria-label={`${isNext ? "Next" : "Previous"} question: ${item.question_number ? `Q${item.question_number}, ` : ""}${paper(item)}`}
-      className={cn(base, "group transition-colors duration-500 hover:bg-ivory/[0.03]")}
+      aria-label={`${label}: ${item.question_number ? `Q${item.question_number}, ` : ""}${paper(item)}`}
+      className={cn(base, "transition", isNext ? "bg-brand-600 text-white hover:bg-brand-700" : "border border-slate-200 bg-white text-slate-800 hover:border-brand-300 hover:bg-brand-50")}
     >
-      <span className="font-sans text-[0.6rem] uppercase tracking-[0.26em] text-ivory-400 transition-colors duration-500 group-hover:text-bronze-300">
-        {label}
-      </span>
-      <span>
-        <span className="block font-display text-3xl font-light leading-none md:text-4xl">
-          Q<span className="italic text-ivory-300">{item.question_number ? pad(item.question_number) : "—"}</span>
+      {isNext ? <ArrowRight className="h-5 w-5 shrink-0" /> : <ArrowLeft className="h-5 w-5 shrink-0" />}
+      <span className="min-w-0">
+        <span className="block text-[15px] font-bold">{label}</span>
+        <span className={cn("block truncate text-sm", isNext ? "text-white/80" : "text-slate-500")}>
+          Q{item.question_number ?? "–"} · {paper(item)}
         </span>
-        <span className="mt-2 block font-sans text-[0.58rem] uppercase tracking-[0.22em] text-ivory-500">{paper(item)}</span>
       </span>
     </Link>
   );

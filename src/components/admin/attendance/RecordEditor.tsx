@@ -44,7 +44,7 @@ export function RecordEditor({ table, semesterId, fields, rows, addLabel, fixed,
 
   return (
     <div>
-      {rows.length === 0 && !adding && empty && <p className="border-t border-line py-5 font-display text-lg italic text-ivory-500">{empty}</p>}
+      {rows.length === 0 && !adding && empty && <p className="border-t border-line py-5 font-display text-lg text-ivory-500">{empty}</p>}
       {rows.length > 0 && (
         <ul className="border-t border-line">
           {rows.map((row) => (
@@ -56,7 +56,7 @@ export function RecordEditor({ table, semesterId, fields, rows, addLabel, fixed,
                     type="button"
                     onClick={() => setEditing(editing === row.id ? null : row.id)}
                     aria-expanded={editing === row.id}
-                    className="font-sans text-[0.62rem] uppercase tracking-[0.2em] text-ivory-300 hover:text-bronze-300"
+                    className="font-sans text-sm text-ivory-300 hover:text-bronze-300"
                   >
                     {editing === row.id ? "Close" : "Edit"}
                   </button>
@@ -69,7 +69,7 @@ export function RecordEditor({ table, semesterId, fields, rows, addLabel, fixed,
                     <input type="hidden" name="_table" value={table} />
                     <input type="hidden" name="id" value={row.id} />
                     <input type="hidden" name="semester_id" value={semesterId} />
-                    <button type="submit" className="font-sans text-[0.62rem] uppercase tracking-[0.2em] text-garnet-300/80 hover:text-garnet-300">
+                    <button type="submit" className="font-sans text-sm text-garnet-300/80 hover:text-garnet-300">
                       Delete
                     </button>
                   </form>

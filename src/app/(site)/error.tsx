@@ -1,18 +1,18 @@
 "use client";
 
 import { useEffect } from "react";
+import { RotateCcw } from "lucide-react";
 
 export default function Error({ error, reset }: { error: Error & { digest?: string }; reset: () => void }) {
   useEffect(() => {
     console.error(error);
   }, [error]);
   return (
-    <div className="frame flex min-h-[80vh] flex-col justify-center pt-32">
-      <p className="eyebrow text-bronze">Something went wrong</p>
-      <h1 className="mt-8 font-display text-display-lg font-light uppercase">A momentary fault</h1>
-      <p className="mt-6 max-w-md font-display text-xl italic text-ivory-400">The archive could not be read just now. Please try again.</p>
-      <button type="button" onClick={reset} className="btn-luxe mt-10 self-start">
-        Try again
+    <div className="frame flex min-h-[60vh] flex-col items-center justify-center py-16 text-center">
+      <h1 className="text-3xl font-bold text-slate-900">Something went wrong</h1>
+      <p className="mt-2 max-w-md text-lg text-slate-600">We couldn&rsquo;t load this page. Please try again.</p>
+      <button type="button" onClick={reset} className="btn-solid mt-6">
+        <RotateCcw className="h-4 w-4" /> Try again
       </button>
     </div>
   );

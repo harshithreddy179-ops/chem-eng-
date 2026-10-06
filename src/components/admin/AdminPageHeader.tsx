@@ -15,8 +15,8 @@ export function AdminPageHeader({
     <header className="mb-10 flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
       <div>
         {eyebrow && <p className="eyebrow text-bronze">{eyebrow}</p>}
-        <h1 className="mt-3 font-display text-5xl font-light uppercase md:text-6xl">{title}</h1>
-        {description && <p className="mt-3 max-w-xl font-display text-lg italic text-ivory-400">{description}</p>}
+        <h1 className="mt-3 font-display text-5xl font-bold md:text-6xl">{title}</h1>
+        {description && <p className="mt-3 max-w-xl font-display text-lg text-ivory-400">{description}</p>}
       </div>
       {action && (
         <Link href={action.href} className="btn-solid self-start md:self-auto">

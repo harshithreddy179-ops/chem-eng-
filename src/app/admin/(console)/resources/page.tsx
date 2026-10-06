@@ -54,7 +54,7 @@ export default async function AdminResourcesPage({ searchParams }: { searchParam
       />
       <AdminTable
         columns={[{ label: "Title" }, { label: "Placement" }, { label: "Type" }, { label: "Order", className: "w-16" }, { label: "Status" }, { label: "", className: "w-32 text-right" }]}
-        empty={<p className="border-t border-line py-10 font-display text-xl italic text-ivory-500">No resources match. Add one to begin.</p>}
+        empty={<p className="border-t border-line py-10 font-display text-xl text-ivory-500">No resources match. Add one to begin.</p>}
         rows={resources.map((r) => ({
           key: r.id,
           cells: [
@@ -70,11 +70,11 @@ export default async function AdminResourcesPage({ searchParams }: { searchParam
               <br />
               {subjectName.get(r.subject_id)} · {categoryLabel[r.category]}
             </div>,
-            <span key="ty" className="text-xs uppercase tracking-wider text-ivory-400">{RESOURCE_TYPE_LABEL[r.resource_type]}</span>,
+            <span key="ty" className="text-xs text-ivory-400">{RESOURCE_TYPE_LABEL[r.resource_type]}</span>,
             <span key="o" className="tabular text-ivory-400">{r.display_order}</span>,
             <StatusDot key="s" on={r.is_published} />,
             <div key="a" className="flex items-center justify-end gap-4">
-              <a href={r.drive_url} target="_blank" rel="noopener noreferrer" className="text-[0.65rem] uppercase tracking-[0.2em] text-ivory-400 hover:text-ivory">
+              <a href={r.drive_url} target="_blank" rel="noopener noreferrer" className="text-sm text-ivory-400 hover:text-ivory">
                 Open ↗
               </a>
               <DeleteButton table="resources" id={r.id} />

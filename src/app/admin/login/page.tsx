@@ -26,12 +26,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Search
         <Link href="/" className="eyebrow hover:text-ivory">
           ← The Chemical Archive
         </Link>
-        <h1 className="mt-10 font-display text-6xl font-light uppercase leading-[0.9]">
+        <h1 className="mt-10 font-display text-6xl font-bold leading-[0.9]">
           Admin
           <br />
-          <em className="italic text-bronze-300">portal</em>
+          <em className="text-bronze-300">portal</em>
         </h1>
-        <p className="mb-12 mt-5 font-display text-lg italic text-ivory-400">Authorised editors only.</p>
+        <p className="mb-12 mt-5 font-display text-lg text-ivory-400">Authorised editors only.</p>
         <LoginForm next={sp.next} notice={notice} />
       </div>
     </main>

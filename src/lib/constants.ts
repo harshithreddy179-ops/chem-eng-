@@ -1,9 +1,9 @@
 import type { Difficulty, ResourceCategory, ResourceType } from "@/types";
 
 export const SITE_NAME = "The Chemical Archive";
-export const SITE_TAGLINE = "Your academic space. Everything in one place.";
+export const SITE_TAGLINE = "Notes, PYQs and study tools for Chemical Engineering, all in one place.";
 export const SITE_DESCRIPTION =
-  "Lecture material, previous-year questions and study tools for Chemical Engineering students at MNNIT Allahabad — carefully organised for every semester.";
+  "Lecture notes, previous year questions (PYQs) and study tools for Chemical Engineering students at MNNIT Allahabad, sorted by exam and subject.";
 export const INSTITUTION = "MNNIT Allahabad";
 
 export const RESOURCE_CATEGORIES: { value: ResourceCategory; label: string; heading: string }[] = [
@@ -36,7 +36,19 @@ export const DIFFICULTIES: { value: Difficulty; label: string }[] = [
 export const EXAM_PRESETS = ["Mid Semester", "End Semester", "Class Test", "Quiz", "Supplementary"];
 
 export const NAV_LINKS = [
-  { href: "/archive", label: "Archive" },
+  { href: "/", label: "Home" },
+  { href: "/archive", label: "Study Material" },
   { href: "/pyqs", label: "PYQs" },
+  { href: "/pyqs/practice", label: "Practice" },
   { href: "/tools", label: "Tools" },
 ] as const;
+
+/** The nav link that matches a path best (longest prefix wins). */
+export function activeNavHref(pathname: string): string | null {
+  let best: string | null = null;
+  for (const { href } of NAV_LINKS) {
+    const hit = href === "/" ? pathname === "/" : pathname === href || pathname.startsWith(`${href}/`);
+    if (hit && (!best || href.length > best.length)) best = href;
+  }
+  return best;
+}

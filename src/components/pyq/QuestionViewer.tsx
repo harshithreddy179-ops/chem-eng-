@@ -2,40 +2,44 @@ import type { PyqWithRelations } from "@/types";
 import { MathText } from "./MathText";
 import { SolutionReveal } from "./SolutionReveal";
 import { RelatedMaterial } from "./RelatedMaterial";
-import { pad, safeHttpsUrl } from "@/lib/utils";
+import { SubjectIcon } from "@/components/ui/SubjectIcon";
+import { DIFFICULTY_STYLE } from "@/lib/palette";
+import { cn, safeHttpsUrl } from "@/lib/utils";
 
 const LETTERS = "ABCDEFGHIJ";
 
-/** The full question: masthead, statement, options, reveal, related material. */
+/** The question card: tags, statement, figure and options. */
 export function QuestionStatement({ pyq, heading = "h1" }: { pyq: PyqWithRelations; heading?: "h1" | "h2" }) {
   const H = heading;
   const image = safeHttpsUrl(pyq.question_image_url);
   return (
-    <div>
-      <p className="font-sans text-[0.65rem] uppercase tracking-[0.3em] text-bronze">{pyq.subject?.name}</p>
-      <p className="mt-3 font-sans text-[0.65rem] uppercase tracking-[0.3em] text-ivory-400">
-        {[pyq.year, pyq.exam, pyq.section?.name].filter(Boolean).join(" · ")}
-      </p>
-      <H className="mt-8 font-display text-display-lg font-light uppercase">
-        Question <span className="italic text-ivory-300">{pyq.question_number ? pad(pyq.question_number) : "—"}</span>
-      </H>
-      <div className="mt-6 flex flex-wrap gap-x-8 gap-y-2 font-sans text-[0.62rem] uppercase tracking-[0.24em] text-ivory-500">
-        {pyq.topic && <span>Topic · <span className="text-ivory-300">{pyq.topic}</span></span>}
-        {pyq.difficulty && <span>Difficulty · <span className="text-ivory-300">{pyq.difficulty}</span></span>}
-        {pyq.marks != null && <span>Marks · <span className="text-ivory-300">{pyq.marks}</span></span>}
+    <div className="card overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 border-b border-line bg-slate-50/70 px-5 py-4">
+        <SubjectIcon slug={pyq.subject?.slug} size="sm" />
+        <div className="min-w-0 flex-1">
+          <p className="text-sm font-semibold text-slate-500">{pyq.subject?.name}</p>
+          <H className="text-xl font-bold text-slate-900">Question {pyq.question_number ?? ""}</H>
+        </div>
+        <div className="flex flex-wrap gap-1.5">
+          <span className="chip bg-brand-50 text-brand-700">{pyq.year}</span>
+          <span className="chip bg-slate-100 text-slate-600">{pyq.exam}</span>
+          {pyq.section && <span className="chip bg-violet-50 text-violet-700">{pyq.section.name}</span>}
+          {pyq.difficulty && <span className={cn("chip capitalize", DIFFICULTY_STYLE[pyq.difficulty])}>{pyq.difficulty}</span>}
+          {pyq.marks != null && pyq.marks > 0 && <span className="chip bg-amber-50 text-amber-700">{pyq.marks} marks</span>}
+        </div>
       </div>
-
-      <div className="mt-12 border-t border-line pt-10">
-        <MathText text={pyq.question} className="text-[1.15rem] md:text-[1.25rem]" />
+      <div className="px-5 py-6 md:px-7 md:py-7">
+        {pyq.topic && <p className="mb-3 text-sm font-semibold text-brand-600">Topic: {pyq.topic}</p>}
+        <MathText text={pyq.question} className="text-[1.08rem] md:text-[1.15rem]" />
         {image && (
           // eslint-disable-next-line @next/next/no-img-element
-          <img src={image} alt="Figure accompanying the question" loading="lazy" className="mt-10 max-h-[32rem] w-auto border border-line bg-ivory/5" />
+          <img src={image} alt="Figure for the question" loading="lazy" className="mt-6 max-h-[32rem] w-auto rounded-xl border border-line" />
         )}
         {pyq.options && pyq.options.length > 0 && (
-          <ol className="mt-10 grid gap-3 sm:grid-cols-2">
+          <ol className="mt-6 grid gap-2.5 sm:grid-cols-2">
             {pyq.options.map((opt, i) => (
-              <li key={i} className="flex items-baseline gap-4 border border-line px-5 py-4">
-                <span className="font-display text-xl italic text-bronze">{LETTERS[i]}</span>
+              <li key={i} className="flex items-baseline gap-3 rounded-xl border border-line px-4 py-3">
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-slate-100 text-sm font-bold text-slate-700">{LETTERS[i]}</span>
                 <MathText text={opt} className="text-[0.98rem]" />
               </li>
             ))}
@@ -46,17 +50,17 @@ export function QuestionStatement({ pyq, heading = "h1" }: { pyq: PyqWithRelatio
   );
 }
 
-export function QuestionViewer({ pyq }: { pyq: PyqWithRelations }) {
+export function QuestionViewer({ pyq, nav }: { pyq: PyqWithRelations; nav?: React.ReactNode }) {
   return (
-    <article className="grid gap-16 lg:grid-cols-12">
-      <div className="lg:col-span-8">
+    <article className="grid gap-6 lg:grid-cols-12">
+      <div className="space-y-5 lg:col-span-8">
         <QuestionStatement pyq={pyq} />
-        <p className="mt-14 font-display text-xl italic text-ivory-400">Solve it physically — pen, paper, no shortcuts.</p>
-        <SolutionReveal className="mt-8" hasSolution={Boolean(pyq.solution)} correctAnswer={pyq.correct_answer}>
+        <SolutionReveal hasSolution={Boolean(pyq.solution)} correctAnswer={pyq.correct_answer}>
           {pyq.solution && <MathText text={pyq.solution} />}
         </SolutionReveal>
+        {nav}
       </div>
-      <div className="lg:col-span-4 lg:pt-40">
+      <div className="space-y-5 lg:col-span-4">
         <RelatedMaterial resources={pyq.related} subjectName={pyq.subject?.name} />
       </div>
     </article>

@@ -25,7 +25,7 @@ export default async function AdminPyqsPage({ searchParams }: { searchParams: Se
       <FilterBar action="/admin/pyqs" sections={sections} subjects={subjects} values={sp} />
       <AdminTable
         columns={[{ label: "Question" }, { label: "Paper" }, { label: "Topic" }, { label: "Status" }, { label: "", className: "w-28 text-right" }]}
-        empty={<p className="border-t border-line py-10 font-display text-xl italic text-ivory-500">No questions match. Add one to begin.</p>}
+        empty={<p className="border-t border-line py-10 font-display text-xl text-ivory-500">No questions match. Add one to begin.</p>}
         rows={pyqs.map((q) => ({
           key: q.id,
           cells: [
@@ -46,7 +46,7 @@ export default async function AdminPyqsPage({ searchParams }: { searchParams: Se
             <StatusDot key="s" on={q.is_published} />,
             <div key="a" className="flex items-center justify-end gap-4">
               {q.is_published && (
-                <Link href={`/pyqs/${q.id}`} target="_blank" className="text-[0.65rem] uppercase tracking-[0.2em] text-ivory-400 hover:text-ivory">
+                <Link href={`/pyqs/${q.id}`} target="_blank" className="text-sm text-ivory-400 hover:text-ivory">
                   View ↗
                 </Link>
               )}

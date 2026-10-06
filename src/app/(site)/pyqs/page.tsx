@@ -1,17 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
-import { SectionHeading } from "@/components/ui/SectionHeading";
+import { FileQuestion, Target } from "lucide-react";
+import { PageHeader } from "@/components/ui/PageHeader";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Reveal } from "@/components/motion/Reveal";
 import { PYQCard } from "@/components/pyq/PYQCard";
 import { PyqFilters } from "@/components/pyq/PyqFilters";
 import { getPyqFacets, getPyqs, getSections, getSubjects, type PyqFilters as Filters } from "@/lib/data/public";
 import type { Difficulty, PyqWithRelations } from "@/types";
 
 export const metadata: Metadata = {
-  title: "The PYQ Vault",
-  description: "Previous-year questions by subject, exam, year, topic and difficulty — solve first, then reveal the solution.",
+  title: "PYQs",
+  description: "Previous year questions by subject, exam, year and difficulty. Solve first, then check the related notes.",
   alternates: { canonical: "/pyqs" },
 };
 
@@ -48,74 +48,76 @@ export default async function PyqVaultPage({ searchParams }: { searchParams: Sea
   ).toString();
 
   return (
-    <div className="frame pb-10 pt-36 md:pt-48">
-      <SectionHeading
-        as="h1"
-        size="xl"
-        index="—"
-        eyebrow={activeSubject ? activeSubject.name : "Previous year questions"}
-        title={["The PYQ", "Vault"]}
-        lede="Previous-year questions, organised for practice. Solve on paper — then reveal."
-        align="split"
+    <>
+      <PageHeader
+        crumbs={[{ label: "PYQs" }]}
+        tint="from-orange-50 via-white to-rose-50"
+        icon={
+          <span className="hidden h-14 w-14 shrink-0 place-items-center rounded-2xl bg-orange-500 text-white shadow-sm sm:grid">
+            <FileQuestion className="h-7 w-7" />
+          </span>
+        }
+        title="Previous Year Questions"
+        subtitle={`${facets.total} questions from past exams${facets.years.length ? ` (${facets.years[facets.years.length - 1]}–${facets.years[0]})` : ""}. Solve on paper, then check the related notes.`}
+        aside={
+          <Link href={`/pyqs/practice${practiceQuery ? `?${practiceQuery}` : ""}`} className="btn-solid w-full py-3.5 text-base">
+            <Target className="h-5 w-5" /> Start a practice set
+          </Link>
+        }
       />
 
-      <Reveal delay={0.2} className="mt-16 flex flex-col gap-8 border-y border-line py-10 md:mt-24 md:flex-row md:items-center md:justify-between">
-        <p className="font-display text-2xl font-light text-ivory-200">
-          <span className="tabular">{facets.total}</span> {facets.total === 1 ? "question" : "questions"} in the vault
-          {facets.years.length > 0 && (
-            <span className="text-ivory-400">
+      <div className="frame py-8">
+        <div className="card p-4 md:p-5">
+          <Suspense>
+            <PyqFilters
+              options={{
+                subjects: subjects.map((s) => ({ slug: s.slug, name: s.name })),
+                sections: sections.map((s) => ({ slug: s.slug, name: s.name })),
+                years: facets.years,
+                exams: facets.exams,
+                topics: facets.topics,
+              }}
+            />
+          </Suspense>
+        </div>
+
+        <p className="mt-6 text-[15px] text-slate-600">
+          Showing <b className="text-slate-900">{pyqs.length}</b> {pyqs.length === 1 ? "question" : "questions"}
+          {activeSubject && (
+            <>
               {" "}
-              · {facets.years[facets.years.length - 1]}–{facets.years[0]}
-            </span>
+              in <b className="text-slate-900">{activeSubject.name}</b>
+            </>
           )}
         </p>
-        <Link href={`/pyqs/practice${practiceQuery ? `?${practiceQuery}` : ""}`} className="btn-solid self-start md:self-auto">
-          Start practice →
-        </Link>
-      </Reveal>
 
-      <div className="mt-14">
-        <Suspense>
-          <PyqFilters
-            options={{
-              subjects: subjects.map((s) => ({ slug: s.slug, name: s.name })),
-              sections: sections.map((s) => ({ slug: s.slug, name: s.name })),
-              years: facets.years,
-              exams: facets.exams,
-              topics: facets.topics,
-            }}
-          />
-        </Suspense>
-      </div>
-
-      <div className="mt-20">
-        {pyqs.length === 0 ? (
-          <EmptyState
-            title={facets.total === 0 ? "The vault is being filled" : "No questions match"}
-            message={
-              facets.total === 0
-                ? "Previous-year questions will appear here as they are added."
-                : "Try widening the filters — or clear them to see everything."
-            }
-          />
-        ) : (
-          [...byYear.entries()].map(([year, items]) => (
-            <section key={year} aria-labelledby={`year-${year}`} className="mb-20 grid gap-8 md:grid-cols-12">
-              <Reveal className="md:col-span-3">
-                <h2 id={`year-${year}`} className="sticky top-28 font-display text-[5.5rem] font-light leading-none tabular text-ivory/90 md:text-[7rem]">
-                  {year}
+        <div className="mt-4 space-y-10">
+          {pyqs.length === 0 ? (
+            <EmptyState
+              title={facets.total === 0 ? "No questions added yet" : "No questions match these filters"}
+              message={facets.total === 0 ? "Previous year questions will show up here once they are added." : "Try removing a filter, or clear them all."}
+            />
+          ) : (
+            [...byYear.entries()].map(([year, items]) => (
+              <section key={year} aria-labelledby={`year-${year}`}>
+                <h2 id={`year-${year}`} className="mb-3 flex items-center gap-3 text-xl font-bold text-slate-900">
+                  <span className="rounded-xl bg-slate-900 px-3 py-1 text-white tabular">{year}</span>
+                  <span className="text-base font-medium text-slate-500">
+                    {items.length} {items.length === 1 ? "question" : "questions"}
+                  </span>
                 </h2>
-                <p className="eyebrow mt-3">{items.length} {items.length === 1 ? "question" : "questions"}</p>
-              </Reveal>
-              <div className="border-t border-line md:col-span-9">
-                {items.map((q) => (
-                  <PYQCard key={q.id} pyq={q} subjectName={activeSubject ? undefined : q.subject?.name} />
-                ))}
-              </div>
-            </section>
-          ))
-        )}
+                <ul className="grid gap-3 md:grid-cols-2">
+                  {items.map((q) => (
+                    <li key={q.id}>
+                      <PYQCard pyq={q} subjectName={activeSubject ? undefined : q.subject?.name} />
+                    </li>
+                  ))}
+                </ul>
+              </section>
+            ))
+          )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -1,41 +1,43 @@
 import type { Chapter, Resource } from "@/types";
 import { ResourceItem } from "./ResourceItem";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { Reveal } from "@/components/motion/Reveal";
-import { pad } from "@/lib/utils";
 
 interface ResourceListProps {
   id: string;
-  index: string;
+  /** Kept for older call sites; not shown. */
+  index?: string;
   title: string;
+  icon?: React.ReactNode;
   resources: Resource[];
   chapters: Chapter[];
   emptyTitle: string;
   emptyMessage: string;
 }
 
-/** A titled column of resources with its own considered empty state. */
-export function ResourceList({ id, index, title, resources, chapters, emptyTitle, emptyMessage }: ResourceListProps) {
+/** A titled list of files. */
+export function ResourceList({ id, title, icon, resources, chapters, emptyTitle, emptyMessage }: ResourceListProps) {
   const chapterName = new Map(chapters.map((c) => [c.id, c.name]));
   return (
-    <section aria-labelledby={id} className="min-w-0">
-      <Reveal className="mb-8 flex items-baseline justify-between gap-6">
-        <h3 id={id} className="flex items-baseline gap-4 font-sans text-xs uppercase tracking-[0.3em] text-ivory-200">
-          <span className="text-bronze tabular">{index}</span>
+    <section aria-labelledby={id} className="min-w-0 scroll-mt-40" id={`${id}-section`}>
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <h2 id={id} className="flex items-center gap-2.5 text-xl font-bold text-slate-900">
+          {icon}
           {title}
-        </h3>
-        <span className="font-sans text-[0.62rem] uppercase tracking-[0.24em] text-ivory-500 tabular">
-          {pad(resources.length)} {resources.length === 1 ? "item" : "items"}
+        </h2>
+        <span className="chip bg-slate-100 text-slate-600 tabular">
+          {resources.length} {resources.length === 1 ? "file" : "files"}
         </span>
-      </Reveal>
+      </div>
       {resources.length === 0 ? (
         <EmptyState compact title={emptyTitle} message={emptyMessage} />
       ) : (
-        <div>
+        <ul className="space-y-3">
           {resources.map((r) => (
-            <ResourceItem key={r.id} resource={r} chapterName={r.chapter_id ? chapterName.get(r.chapter_id) : null} />
+            <li key={r.id}>
+              <ResourceItem resource={r} chapterName={r.chapter_id ? chapterName.get(r.chapter_id) : null} />
+            </li>
           ))}
-        </div>
+        </ul>
       )}
     </section>
   );

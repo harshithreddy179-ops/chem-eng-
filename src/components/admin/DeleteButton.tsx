@@ -12,7 +12,7 @@ export function DeleteButton({ table, id, label = "Delete" }: { table: "resource
     >
       <input type="hidden" name="table" value={table} />
       <input type="hidden" name="id" value={id} />
-      <button type="submit" className="font-sans text-[0.65rem] uppercase tracking-[0.2em] text-red-300/80 hover:text-red-200">
+      <button type="submit" className="font-sans text-sm text-red-300/80 hover:text-red-200">
         {label}
       </button>
     </form>

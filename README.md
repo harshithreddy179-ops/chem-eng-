@@ -190,7 +190,7 @@ There are two kinds of PYQ content:
 | Optional question image URL | https link to a diagram |
 | Options | for objective questions, one per line; shown as A, B, C… |
 | Correct answer | optional; revealed with the solution |
-| Solution | revealed only when the student clicks **Reveal solution** |
+| Solution | revealed only when the student clicks **Show solution** |
 | Related material | tick the lectures or notes this question draws on. They appear under **Related material** with an Open resource link. |
 
 Example question text:
@@ -334,7 +334,7 @@ npm test   # attendance engine (holidays, cancellations, reschedules, batches, b
 /archive/[section]/[subject]   Subject page: chapters ☐, Lectures & Study Material | Previous Year Questions
 /subjects/[subject]            One subject across every section
 /pyqs                          PYQ Vault: filter by subject, section, year, exam, topic, difficulty
-/pyqs/[id]                     A question: statement, Reveal solution, related material
+/pyqs/[id]                     A question: statement, Show solution, related notes, Previous/Next
 /pyqs/practice                 Practice setup, then a session (?start=1)
 /tools, /tools/pomodoro        Tools index and the Pomodoro timer
 /admin/...                     Protected admin portal
@@ -374,8 +374,7 @@ src/
     api/search/   Search index route
     sitemap.ts, robots.ts, opengraph-image.tsx, icon.svg
   components/
-    layout/       SiteHeader (nav, mobile menu, ⌘K), SiteFooter
-    home/         Hero, Purpose, Pillars, SubjectList
+    layout/       SiteHeader (top nav, phone bottom tab bar, Ctrl K search), SiteFooter
     archive/      AcademicSectionCard, SubjectIndex, ResourceList, ResourceItem, ChapterChecklist
     pyq/          PYQCard, QuestionViewer, SolutionReveal, PracticeSession, PyqFilters, MathText
     tools/        PomodoroTimer, ToolGlyph
@@ -384,13 +383,12 @@ src/
     admin/        AdminSidebar, AdminTable, AdminForm, Resource/Chapter/Pyq forms, TaxonomyManager,
                   attendance/ (RecordEditor, field definitions, semester settings)
     search/       SearchCommand
-    ui/           SectionHeading, EmptyState, ProgressBar, ProgressRing, CompletionCheckbox, Breadcrumbs
-    visual/       HeroArchitecture (SVG), SubjectMotif
-    motion/       Reveal, TextReveal
+    ui/           PageHeader, SubjectIcon, EmptyState, ProgressBar, ProgressRing, CompletionCheckbox, Breadcrumbs
   hooks/          use-progress, use-admin-form, use-is-admin, use-hotkey
   lib/            supabase clients, data access (public and admin), auth, progress store, constants,
                   attendance/ (pure engine, dates, local store), calculator/ (parser + formatter)
-  styles/         globals.css (design tokens, components)
+  styles/         globals.css (light theme: card, chip, button and field styles)
+  lib/palette.ts  Colour + icon theme per subject and per exam
   types/          Domain types
 supabase/
   migrations/     Schema, RLS and seed configuration (incl. attendance)

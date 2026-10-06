@@ -1,5 +1,5 @@
-import { ArrowUpRight } from "lucide-react";
-import type { Resource } from "@/types";
+import { ExternalLink, FileText, Presentation, FileQuestion, NotebookPen } from "lucide-react";
+import type { Resource, ResourceType } from "@/types";
 import { RESOURCE_TYPE_LABEL } from "@/lib/constants";
 import { CompletionCheckbox } from "@/components/ui/CompletionCheckbox";
 import { safeHttpsUrl, cn } from "@/lib/utils";
@@ -10,66 +10,56 @@ interface ResourceItemProps {
   index?: number;
 }
 
-/** One Drive-hosted file: label, title, type, open → and a completion box. */
+const TYPE_STYLE: Record<ResourceType, { icon: typeof FileText; tone: string }> = {
+  ppt: { icon: Presentation, tone: "bg-orange-50 text-orange-600" },
+  pdf: { icon: FileText, tone: "bg-rose-50 text-rose-600" },
+  notes: { icon: NotebookPen, tone: "bg-sky-50 text-sky-600" },
+  pyq: { icon: FileQuestion, tone: "bg-violet-50 text-violet-600" },
+  question_paper: { icon: FileQuestion, tone: "bg-violet-50 text-violet-600" },
+  study_material: { icon: NotebookPen, tone: "bg-emerald-50 text-emerald-600" },
+  other: { icon: FileText, tone: "bg-slate-100 text-slate-600" },
+};
+
+/** One Google Drive file: icon, title, details, Open button and a done checkbox. */
 export function ResourceItem({ resource, chapterName }: ResourceItemProps) {
   const href = safeHttpsUrl(resource.drive_url);
-  const image = safeHttpsUrl(resource.image_url);
-  const eyebrow = resource.label || RESOURCE_TYPE_LABEL[resource.resource_type];
+  const style = TYPE_STYLE[resource.resource_type] ?? TYPE_STYLE.other;
+  const Icon = style.icon;
+  const tag = resource.label || RESOURCE_TYPE_LABEL[resource.resource_type];
 
   return (
-    <article className="group relative border-b border-line py-7 first:border-t md:py-8">
-      <span
-        aria-hidden
-        className="absolute inset-y-0 -left-4 w-px origin-top scale-y-0 bg-bronze transition-transform duration-700 ease-luxe group-hover:scale-y-100"
-      />
-      <div className="flex gap-5">
-        {image && (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={image}
-            alt=""
-            loading="lazy"
-            decoding="async"
-            className="hidden h-20 w-16 shrink-0 object-cover opacity-80 grayscale transition duration-700 group-hover:opacity-100 group-hover:grayscale-0 sm:block"
-          />
-        )}
-        <div className="min-w-0 flex-1">
-          <div className="flex items-center justify-between gap-4">
-            <p className="font-sans text-[0.62rem] uppercase tracking-[0.28em] text-bronze">{eyebrow}</p>
-            <span className="border border-line px-2 py-1 font-sans text-[0.55rem] uppercase tracking-[0.2em] text-ivory-400">
-              {RESOURCE_TYPE_LABEL[resource.resource_type]}
-            </span>
-          </div>
-          <h4 className="mt-3 font-display text-[1.65rem] font-light leading-tight text-ivory md:text-3xl">{resource.title}</h4>
+    <article className="card flex flex-col gap-4 p-4 transition hover:border-brand-200 sm:flex-row sm:items-center">
+      <div className="flex min-w-0 flex-1 items-start gap-3.5">
+        <span className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-xl", style.tone)}>
+          <Icon className="h-5 w-5" />
+        </span>
+        <div className="min-w-0">
+          <h3 className="text-[17px] font-semibold leading-snug text-slate-900">{resource.title}</h3>
           {(resource.description || chapterName) && (
-            <p className="mt-2 font-sans text-sm leading-relaxed text-ivory-400">
-              {chapterName && <span className="text-ivory-300">{chapterName}</span>}
-              {chapterName && resource.description && <span aria-hidden> · </span>}
+            <p className="mt-0.5 text-sm leading-relaxed text-slate-500">
+              {chapterName}
+              {chapterName && resource.description && " · "}
               {resource.description}
             </p>
           )}
-          <div className="mt-5 flex flex-wrap items-center justify-between gap-4">
-            {resource.is_trackable ? (
-              <CompletionCheckbox progressKey={`resource:${resource.id}`} label={resource.title} />
-            ) : (
-              <span />
-            )}
-            {href ? (
-              <a
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                className={cn("link-luxe text-ivory-100 hover:text-bronze-300")}
-                aria-label={`Open ${resource.title} in Google Drive (new tab)`}
-              >
-                Open
-                <ArrowUpRight className="h-3.5 w-3.5" strokeWidth={1.25} aria-hidden />
-              </a>
-            ) : (
-              <span className="font-sans text-[0.62rem] uppercase tracking-[0.24em] text-ivory-500">Link unavailable</span>
-            )}
-          </div>
+          <span className="chip mt-2 bg-slate-100 px-2 py-0.5 text-xs text-slate-600">{tag}</span>
         </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-2 sm:flex-col sm:items-end lg:flex-row lg:items-center">
+        {resource.is_trackable && <CompletionCheckbox progressKey={`resource:${resource.id}`} label={resource.title} />}
+        {href ? (
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="btn-solid px-4 py-2 text-sm"
+            aria-label={`Open ${resource.title} in Google Drive (new tab)`}
+          >
+            Open <ExternalLink className="h-4 w-4" aria-hidden />
+          </a>
+        ) : (
+          <span className="text-sm text-slate-400">Link not available</span>
+        )}
       </div>
     </article>
   );

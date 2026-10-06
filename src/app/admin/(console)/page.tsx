@@ -27,8 +27,8 @@ export default async function AdminDashboard() {
       <dl className="grid grid-cols-2 border-l border-t border-line md:grid-cols-5">
         {stats.map((s) => (
           <Link key={s.label} href={s.href} className="group border-b border-r border-line p-6 transition-colors hover:bg-ivory/[0.02] md:p-8">
-            <dt className="font-sans text-[0.6rem] uppercase tracking-[0.22em] text-ivory-500">{s.label}</dt>
-            <dd className="mt-4 font-display text-6xl font-light tabular transition-colors group-hover:text-bronze-300">{pad(s.value)}</dd>
+            <dt className="font-sans text-sm text-ivory-500">{s.label}</dt>
+            <dd className="mt-4 font-display text-6xl font-bold tabular transition-colors group-hover:text-bronze-300">{pad(s.value)}</dd>
           </Link>
         ))}
       </dl>
@@ -56,7 +56,7 @@ export default async function AdminDashboard() {
             Recently added · resources
           </h2>
           {recentResources.length === 0 ? (
-            <p className="border-t border-line py-6 font-display text-lg italic text-ivory-500">No resources yet — add the first one.</p>
+            <p className="border-t border-line py-6 font-display text-lg text-ivory-500">No resources yet — add the first one.</p>
           ) : (
             <ul className="border-t border-line">
               {recentResources.map((r) => (
@@ -67,7 +67,7 @@ export default async function AdminDashboard() {
                         {r.label ? `${r.label} — ` : ""}
                         {r.title}
                       </span>
-                      <span className="font-sans text-[0.6rem] uppercase tracking-[0.18em] text-ivory-500">
+                      <span className="font-sans text-sm text-ivory-500">
                         {RESOURCE_TYPE_LABEL[r.resource_type]} · {formatDate(r.created_at)}
                       </span>
                     </span>
@@ -83,7 +83,7 @@ export default async function AdminDashboard() {
             Recently added · PYQs
           </h2>
           {recentPyqs.length === 0 ? (
-            <p className="border-t border-line py-6 font-display text-lg italic text-ivory-500">No questions yet — add the first one.</p>
+            <p className="border-t border-line py-6 font-display text-lg text-ivory-500">No questions yet — add the first one.</p>
           ) : (
             <ul className="border-t border-line">
               {recentPyqs.map((q) => (
@@ -95,7 +95,7 @@ export default async function AdminDashboard() {
                         {q.question_number ? ` · Q${q.question_number}` : ""}
                         {q.topic ? ` — ${q.topic}` : ""}
                       </span>
-                      <span className="font-sans text-[0.6rem] uppercase tracking-[0.18em] text-ivory-500">{formatDate(q.created_at)}</span>
+                      <span className="font-sans text-sm text-ivory-500">{formatDate(q.created_at)}</span>
                     </span>
                     <StatusDot on={q.is_published} />
                   </Link>

@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Bell, BellOff, Pause, Play, RotateCcw, Settings2, SkipForward, Volume2, VolumeX, X } from "lucide-react";
 import { playChime } from "./chime";
 import { cn, pad } from "@/lib/utils";
@@ -21,10 +21,10 @@ interface Settings {
 const DEFAULTS: Settings = { focus: 25, short: 5, long: 15, roundsBeforeLong: 4, autoStart: false, sound: true, notify: false };
 const STORAGE_KEY = "chemical-archive:pomodoro:v1";
 
-const MODE_META: Record<Mode, { label: string; title: string; line: string }> = {
-  focus: { label: "Focus", title: "Focus", line: "One task. Nothing else." },
-  short: { label: "Short break", title: "Break", line: "Stand up. Look far away." },
-  long: { label: "Long break", title: "Rest", line: "Step away properly. You've earned it." },
+const MODE_META: Record<Mode, { label: string; title: string; line: string; hex: string; tab: string; soft: string }> = {
+  focus: { label: "Study", title: "Study time", line: "Focus on one thing", hex: "#f43f5e", tab: "bg-rose-500 text-white", soft: "bg-rose-50" },
+  short: { label: "Short break", title: "Short break", line: "Stand up, drink water", hex: "#10b981", tab: "bg-emerald-500 text-white", soft: "bg-emerald-50" },
+  long: { label: "Long break", title: "Long break", line: "Take a proper rest", hex: "#0ea5e9", tab: "bg-sky-500 text-white", soft: "bg-sky-50" },
 };
 
 function loadSettings(): Settings {
@@ -133,7 +133,7 @@ export function PomodoroTimer() {
   }, [running, complete]);
 
   useEffect(() => {
-    const base = "Pomodoro — The Chemical Archive";
+    const base = "Study Timer — The Chemical Archive";
     document.title = running ? `${fmt(remaining)} · ${MODE_META[mode].label}` : base;
     return () => {
       document.title = base;
@@ -194,141 +194,108 @@ export function PomodoroTimer() {
 
   /* ─── ring geometry ───────────────────────────────────────────────── */
   const progress = duration > 0 ? 1 - remaining / duration : 0;
-  const R = 46;
+  const R = 44;
   const C = 2 * Math.PI * R;
-  const ticks = useMemo(() => Array.from({ length: 60 }, (_, i) => i), []);
   const round =
     mode === "focus"
       ? (completedFocus % settings.roundsBeforeLong) + 1
       : completedFocus % settings.roundsBeforeLong || settings.roundsBeforeLong;
 
+  const meta = MODE_META[mode];
+
   return (
-    <div className="relative">
+    <div className="mx-auto max-w-2xl">
       <p className="sr-only" aria-live="assertive">
         {announcement}
       </p>
 
-      {/* Mode selector */}
-      <div role="tablist" aria-label="Timer mode" className="mx-auto flex max-w-md justify-between border-b border-line">
-        {(Object.keys(MODE_META) as Mode[]).map((m, i) => (
-          <button
-            key={m}
-            role="tab"
-            type="button"
-            aria-selected={mode === m}
-            onClick={() => switchMode(m)}
-            className={cn(
-              "relative px-1 pb-4 font-sans text-[0.62rem] uppercase tracking-[0.26em] transition-colors duration-500 sm:text-[0.65rem]",
-              mode === m ? "text-ivory" : "text-ivory-500 hover:text-ivory-200",
-            )}
-          >
-            <span className="mr-2 hidden text-ivory-500 sm:inline">{i + 1}</span>
-            {MODE_META[m].label}
-            {mode === m && (
-              <motion.span layoutId="pomodoro-tab" className="absolute -bottom-px left-0 right-0 h-px bg-bronze" transition={{ duration: reduce ? 0 : 0.6, ease: [0.22, 1, 0.36, 1] }} />
-            )}
-          </button>
-        ))}
-      </div>
-
-      {/* Dial */}
-      <div className="relative mx-auto mt-12 aspect-square w-[min(84vw,30rem,56svh)] md:mt-12">
-        <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden>
-          {ticks.map((t) => {
-            const a = (t / 60) * Math.PI * 2;
-            const inner = t % 5 === 0 ? 40.5 : 41.8;
-            const lit = t / 60 < progress;
-            return (
-              <line
-                key={t}
-                x1={50 + inner * Math.cos(a)}
-                y1={50 + inner * Math.sin(a)}
-                x2={50 + 43 * Math.cos(a)}
-                y2={50 + 43 * Math.sin(a)}
-                stroke={lit ? "#b39469" : "rgb(236 230 218 / 0.18)"}
-                strokeWidth={t % 5 === 0 ? 0.35 : 0.2}
-                style={{ transition: "stroke 0.8s ease" }}
-              />
-            );
-          })}
-          <circle cx="50" cy="50" r={R} fill="none" stroke="rgb(236 230 218 / 0.08)" strokeWidth="0.3" />
-          <circle
-            cx="50"
-            cy="50"
-            r={R}
-            fill="none"
-            stroke="#b39469"
-            strokeWidth="0.6"
-            strokeLinecap="round"
-            strokeDasharray={C}
-            strokeDashoffset={C * (1 - progress)}
-            style={{ transition: running && !reduce ? "stroke-dashoffset 0.25s linear" : "stroke-dashoffset 0.8s cubic-bezier(0.22,1,0.36,1)" }}
-          />
-        </svg>
-        <div
-          aria-hidden
-          className={cn(
-            "absolute inset-[16%] rounded-full bg-[radial-gradient(circle_at_50%_35%,rgba(179,148,105,0.16),transparent_70%)] transition-opacity duration-1000",
-            running ? "opacity-100" : "opacity-40",
-          )}
-        />
-        <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={mode}
-              initial={{ opacity: 0, y: reduce ? 0 : 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: reduce ? 0 : -6 }}
-              transition={{ duration: 0.5 }}
-              className="font-sans text-[0.62rem] uppercase tracking-[0.4em] text-bronze"
+      <div className={cn("card overflow-hidden transition-colors", meta.soft)}>
+        {/* Mode selector */}
+        <div role="tablist" aria-label="Timer mode" className="grid grid-cols-3 gap-1.5 border-b border-line bg-white p-2">
+          {(Object.keys(MODE_META) as Mode[]).map((m) => (
+            <button
+              key={m}
+              role="tab"
+              type="button"
+              aria-selected={mode === m}
+              onClick={() => switchMode(m)}
+              className={cn(
+                "rounded-xl px-2 py-2.5 text-[15px] font-semibold transition",
+                mode === m ? MODE_META[m].tab : "text-slate-600 hover:bg-slate-100",
+              )}
             >
-              {MODE_META[mode].title}
-            </motion.p>
-          </AnimatePresence>
-          <p
-            className="mt-2 font-display text-[clamp(4.5rem,20vw,8.5rem)] font-light leading-none tabular tracking-[-0.02em]"
-            role="timer"
-            aria-live="off"
-            aria-label={`${fmt(remaining)} remaining`}
-          >
-            {fmt(remaining)}
-          </p>
-          <p className="mt-3 font-display text-base italic text-ivory-400 md:text-lg">{MODE_META[mode].line}</p>
-          <p className="mt-4 font-sans text-[0.58rem] uppercase tracking-[0.3em] text-ivory-500">
-            Round {round} / {settings.roundsBeforeLong} · {completedFocus} done
-          </p>
+              {MODE_META[m].label}
+            </button>
+          ))}
         </div>
-      </div>
 
-      {/* Controls */}
-      <div className="mx-auto mt-12 flex max-w-md items-center justify-center gap-4 md:mt-14">
-        <IconButton label="Reset (R)" onClick={reset}>
-          <RotateCcw className="h-4 w-4" strokeWidth={1.25} />
-        </IconButton>
-        <button
-          type="button"
-          onClick={toggle}
-          className="group relative flex h-16 min-w-[11rem] items-center justify-center gap-3 bg-ivory px-8 font-sans text-[0.7rem] uppercase tracking-luxe text-ink transition-colors duration-500 hover:bg-bronze-300"
-          aria-keyshortcuts="Space"
-        >
-          {running ? <Pause className="h-4 w-4" strokeWidth={1.5} /> : <Play className="h-4 w-4" strokeWidth={1.5} />}
-          {running ? "Pause" : remaining < duration ? "Resume" : "Start"}
-        </button>
-        <IconButton label="Skip (S)" onClick={skip}>
-          <SkipForward className="h-4 w-4" strokeWidth={1.25} />
-        </IconButton>
-      </div>
+        {/* Dial */}
+        <div className="relative mx-auto my-8 aspect-square w-[min(78vw,22rem,50svh)]">
+          <svg viewBox="0 0 100 100" className="absolute inset-0 h-full w-full -rotate-90" aria-hidden>
+            <circle cx="50" cy="50" r={R} fill="white" stroke="#e8edf5" strokeWidth="5" />
+            <circle
+              cx="50"
+              cy="50"
+              r={R}
+              fill="none"
+              stroke={meta.hex}
+              strokeWidth="5"
+              strokeLinecap="round"
+              strokeDasharray={C}
+              strokeDashoffset={C * (1 - progress)}
+              style={{ transition: running && !reduce ? "stroke-dashoffset 0.25s linear" : "stroke-dashoffset 0.6s ease-out" }}
+            />
+          </svg>
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+            <p className="text-base font-bold" style={{ color: meta.hex }}>
+              {meta.title}
+            </p>
+            <p
+              className="mt-1 text-[clamp(3.5rem,15vw,5.5rem)] font-bold leading-none tabular text-slate-900"
+              role="timer"
+              aria-live="off"
+              aria-label={`${fmt(remaining)} remaining`}
+            >
+              {fmt(remaining)}
+            </p>
+            <p className="mt-2 text-[15px] text-slate-500">{meta.line}</p>
+            <p className="mt-2 rounded-full bg-slate-100 px-3 py-1 text-sm font-semibold text-slate-600">
+              Round {round} of {settings.roundsBeforeLong} · {completedFocus} done
+            </p>
+          </div>
+        </div>
 
-      <div className="mx-auto mt-8 flex max-w-md items-center justify-center gap-2">
-        <IconButton small label={settings.sound ? "Sound on" : "Sound off"} pressed={settings.sound} onClick={() => setSettings((s) => ({ ...s, sound: !s.sound }))}>
-          {settings.sound ? <Volume2 className="h-3.5 w-3.5" strokeWidth={1.25} /> : <VolumeX className="h-3.5 w-3.5" strokeWidth={1.25} />}
-        </IconButton>
-        <IconButton small label={settings.notify ? "Notifications on" : "Notifications off"} pressed={settings.notify} onClick={toggleNotify}>
-          {settings.notify ? <Bell className="h-3.5 w-3.5" strokeWidth={1.25} /> : <BellOff className="h-3.5 w-3.5" strokeWidth={1.25} />}
-        </IconButton>
-        <IconButton small label="Timer settings" pressed={showSettings} onClick={() => setShowSettings((v) => !v)}>
-          <Settings2 className="h-3.5 w-3.5" strokeWidth={1.25} />
-        </IconButton>
+        {/* Controls */}
+        <div className="flex items-center justify-center gap-3 px-4 pb-6">
+          <IconButton label="Reset (R)" onClick={reset}>
+            <RotateCcw className="h-5 w-5" />
+          </IconButton>
+          <button
+            type="button"
+            onClick={toggle}
+            className="flex h-14 min-w-[10rem] items-center justify-center gap-2 rounded-2xl px-8 text-lg font-bold text-white shadow-sm transition hover:brightness-110"
+            style={{ backgroundColor: meta.hex }}
+            aria-keyshortcuts="Space"
+          >
+            {running ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+            {running ? "Pause" : remaining < duration ? "Resume" : "Start"}
+          </button>
+          <IconButton label="Skip (S)" onClick={skip}>
+            <SkipForward className="h-5 w-5" />
+          </IconButton>
+        </div>
+
+        <div className="flex items-center justify-center gap-2 border-t border-line bg-white px-4 py-3">
+          <IconButton small label={settings.sound ? "Sound on" : "Sound off"} pressed={settings.sound} onClick={() => setSettings((s) => ({ ...s, sound: !s.sound }))}>
+            {settings.sound ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
+          </IconButton>
+          <IconButton small label={settings.notify ? "Notifications on" : "Notifications off"} pressed={settings.notify} onClick={toggleNotify}>
+            {settings.notify ? <Bell className="h-4 w-4" /> : <BellOff className="h-4 w-4" />}
+          </IconButton>
+          <IconButton small label="Timer settings" pressed={showSettings} onClick={() => setShowSettings((v) => !v)}>
+            <Settings2 className="h-4 w-4" />
+          </IconButton>
+        </div>
       </div>
 
       <AnimatePresence initial={false}>
@@ -338,20 +305,20 @@ export function PomodoroTimer() {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: reduce ? 0.1 : 0.7, ease: [0.22, 1, 0.36, 1] }}
-            className="mx-auto max-w-2xl overflow-hidden"
+            transition={{ duration: reduce ? 0.1 : 0.3 }}
+            className="overflow-hidden"
           >
-            <div className="mt-10 border border-line p-6 md:p-10">
+            <div className="card mt-4 p-5">
               <div className="flex items-center justify-between">
-                <p className="eyebrow">Durations (minutes)</p>
-                <button type="button" onClick={() => setShowSettings(false)} aria-label="Close settings" className="p-1 text-ivory-400 hover:text-ivory">
-                  <X className="h-4 w-4" strokeWidth={1.25} />
+                <p className="text-lg font-bold text-slate-900">Timer settings (minutes)</p>
+                <button type="button" onClick={() => setShowSettings(false)} aria-label="Close settings" className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100">
+                  <X className="h-5 w-5" />
                 </button>
               </div>
-              <div className="mt-6 grid grid-cols-2 gap-6 md:grid-cols-4">
+              <div className="mt-4 grid grid-cols-2 gap-3 md:grid-cols-4">
                 {(
                   [
-                    ["focus", "Focus"],
+                    ["focus", "Study"],
                     ["short", "Short break"],
                     ["long", "Long break"],
                     ["roundsBeforeLong", "Rounds"],
@@ -366,43 +333,43 @@ export function PomodoroTimer() {
                       max={key === "roundsBeforeLong" ? 12 : 180}
                       value={settings[key]}
                       onChange={(e) => updateDuration(key, Number(e.target.value))}
-                      className="field font-display text-3xl tabular"
+                      className="field text-xl font-semibold tabular"
                     />
                   </label>
                 ))}
               </div>
-              <label className="mt-8 flex cursor-pointer items-center justify-between gap-6 border-t border-line pt-6">
+              <label className="mt-5 flex cursor-pointer items-center justify-between gap-6 border-t border-line pt-4">
                 <span>
-                  <span className="block font-sans text-sm text-ivory">Auto-start the next session</span>
-                  <span className="mt-1 block font-sans text-xs text-ivory-500">Flow straight from focus into break and back.</span>
+                  <span className="block text-[15px] font-semibold text-slate-800">Start the next timer automatically</span>
+                  <span className="block text-sm text-slate-500">Go from study to break and back without pressing Start.</span>
                 </span>
                 <input
                   type="checkbox"
                   checked={settings.autoStart}
                   onChange={(e) => setSettings((s) => ({ ...s, autoStart: e.target.checked }))}
-                  className="h-4 w-4 accent-[#b39469]"
+                  className="h-5 w-5 accent-brand-600"
                 />
               </label>
-              <div className="mt-6 flex justify-between border-t border-line pt-6">
+              <div className="mt-4 flex justify-between border-t border-line pt-4">
                 <button
                   type="button"
-                  className="link-luxe text-ivory-400"
+                  className="link-luxe"
                   onClick={() => {
                     setSettings(DEFAULTS);
                     if (!running) setRemaining(DEFAULTS[mode] * 60);
                   }}
                 >
-                  Restore defaults
+                  Reset to default
                 </button>
-                <p className="hidden font-sans text-[0.6rem] uppercase tracking-[0.2em] text-ivory-500 sm:block">Saved on this device</p>
+                <p className="text-sm text-slate-500">Saved on this device</p>
               </div>
             </div>
           </motion.section>
         )}
       </AnimatePresence>
 
-      <p className="mx-auto mt-12 hidden max-w-md text-center font-sans text-[0.6rem] uppercase tracking-[0.22em] text-ivory-500 md:block">
-        Space start / pause · R reset · S skip · 1 2 3 modes
+      <p className="mt-5 hidden text-center text-sm text-slate-500 md:block">
+        Keyboard: <b>Space</b> start / pause · <b>R</b> reset · <b>S</b> skip · <b>1 2 3</b> change mode
       </p>
     </div>
   );
@@ -429,9 +396,9 @@ function IconButton({
       title={label}
       aria-pressed={pressed}
       className={cn(
-        "grid place-items-center border transition-colors duration-500",
-        small ? "h-10 w-10" : "h-16 w-16",
-        pressed ? "border-bronze/60 text-bronze-300" : "border-line text-ivory-300 hover:border-ivory/30 hover:text-ivory",
+        "grid place-items-center rounded-xl border transition",
+        small ? "h-10 w-10" : "h-14 w-14 bg-white",
+        pressed ? "border-brand-200 bg-brand-50 text-brand-600" : "border-slate-200 text-slate-600 hover:bg-slate-100",
       )}
     >
       {children}

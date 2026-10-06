@@ -4,11 +4,10 @@
 
 @layer base {
   :root {
-    --ink: 13 12 11;
-    --ivory: 236 230 218;
-    --bronze: 179 148 105;
-    --grain: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
-    color-scheme: dark;
+    --ink: 255 255 255;
+    --ivory: 15 23 42;
+    --bronze: 36 87 232;
+    color-scheme: light;
   }
 
   html,
@@ -22,27 +21,31 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     scroll-behavior: smooth;
+    font-size: 16px;
   }
 
   body {
-    @apply bg-ink text-ivory font-sans;
-    font-feature-settings: "ss01", "cv11";
+    @apply bg-white font-sans text-slate-900;
   }
 
   ::selection {
-    background: rgb(var(--bronze) / 0.35);
-    color: rgb(var(--ivory));
+    background: rgb(var(--bronze) / 0.18);
   }
 
   :focus-visible {
-    outline: 1px solid rgb(var(--bronze));
-    outline-offset: 4px;
+    outline: 2px solid rgb(var(--bronze));
+    outline-offset: 2px;
+    border-radius: 6px;
+  }
+
+  /* Cormorant's old-style figures make "1" look like "ı"; use lining figures. */
+  .font-display {
+    font-variant-numeric: lining-nums;
   }
 
   h1, h2, h3, h4 {
-    font-weight: 300;
+    font-weight: 700;
     overflow-wrap: break-word;
-    hyphens: auto;
   }
 
   @media (prefers-reduced-motion: reduce) {
@@ -57,62 +60,55 @@
 
 @layer components {
   .frame {
-    @apply mx-auto w-full max-w-frame px-5 sm:px-8 lg:px-14;
+    @apply mx-auto w-full max-w-frame px-4 sm:px-6 lg:px-8;
   }
 
+  /* Small coloured label above a heading. */
   .eyebrow {
-    @apply font-sans text-eyebrow uppercase text-ivory-300;
+    @apply font-sans text-sm font-semibold text-brand-600;
   }
 
   .hairline {
     @apply border-line;
   }
 
+  .card {
+    @apply rounded-2xl border border-line bg-white shadow-card;
+  }
+  .card-hover {
+    @apply transition duration-200 hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-lift;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[13px] font-semibold;
+  }
+
+  /* Text link. (Name kept from the first design; used across admin.) */
   .link-luxe {
-    @apply relative inline-flex items-center gap-3 font-sans text-[0.7rem] uppercase tracking-luxe text-ivory transition-colors duration-500 ease-luxe;
-  }
-  .link-luxe::after {
-    content: "";
-    @apply absolute -bottom-1.5 left-0 h-px w-full origin-left scale-x-[0.35] bg-current opacity-60 transition-transform duration-700 ease-luxe;
-  }
-  .link-luxe:hover::after,
-  .link-luxe:focus-visible::after {
-    @apply scale-x-100;
+    @apply inline-flex items-center gap-2 font-sans text-[15px] font-semibold text-brand-600 transition-colors hover:text-brand-800;
   }
 
+  /* Secondary button. */
   .btn-luxe {
-    @apply inline-flex items-center justify-center gap-3 border border-ivory/25 px-7 py-4 font-sans text-[0.7rem] uppercase tracking-luxe text-ivory transition-all duration-700 ease-luxe hover:border-bronze hover:bg-bronze/10 disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 font-sans text-[15px] font-semibold text-slate-800 shadow-sm transition hover:border-brand-300 hover:bg-brand-50 hover:text-brand-700 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
+  /* Primary button. */
   .btn-solid {
-    @apply inline-flex items-center justify-center gap-3 bg-ivory px-7 py-4 font-sans text-[0.7rem] uppercase tracking-luxe text-ink transition-all duration-700 ease-luxe hover:bg-bronze-300 disabled:cursor-not-allowed disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 rounded-xl bg-brand-600 px-5 py-3 font-sans text-[15px] font-semibold text-white shadow-sm shadow-brand-600/20 transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-50;
   }
 
-  .grain::after {
-    content: "";
-    pointer-events: none;
-    position: absolute;
-    inset: -50%;
-    background-image: var(--grain);
-    opacity: 0.07;
-    mix-blend-mode: overlay;
-    @apply animate-grain;
-  }
-
-  /* Form fields — admin & practice */
+  /* Form fields */
   .field {
-    @apply w-full border-0 border-b border-ivory/20 bg-transparent px-0 py-3 font-sans text-[0.95rem] text-ivory placeholder:text-ivory-500 transition-colors duration-500 focus:border-bronze focus:outline-none focus:ring-0;
+    @apply w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 font-sans text-[15px] text-slate-900 placeholder:text-slate-400 transition focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-100;
   }
   .field-label {
-    @apply mb-1 block font-sans text-[0.65rem] uppercase tracking-[0.24em] text-ivory-400;
+    @apply mb-1.5 block font-sans text-sm font-semibold text-slate-700;
   }
   select.field {
-    @apply cursor-pointer appearance-none bg-no-repeat pr-8;
-    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23b8b0a2' stroke-width='1.5'><path d='m6 9 6 6 6-6'/></svg>");
-    background-position: right 0.25rem center;
-  }
-  select.field option {
-    @apply bg-ink-700 text-ivory;
+    @apply cursor-pointer appearance-none bg-no-repeat pr-9;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2'><path d='m6 9 6 6 6-6'/></svg>");
+    background-position: right 0.75rem center;
   }
   textarea.field {
     @apply min-h-[8rem] resize-y leading-relaxed;
@@ -120,13 +116,13 @@
 
   /* Rendered math / prose for questions and solutions */
   .prose-archive {
-    @apply font-sans text-[1.05rem] leading-[1.85] text-ivory-100;
+    @apply font-sans text-[1.05rem] leading-[1.8] text-slate-800;
   }
   .prose-archive p + p {
-    @apply mt-5;
+    @apply mt-4;
   }
   .prose-archive .katex-display {
-    @apply my-6 overflow-x-auto overflow-y-hidden py-2;
+    @apply my-5 overflow-x-auto overflow-y-hidden py-2;
   }
   .prose-archive .katex {
     font-size: 1.08em;

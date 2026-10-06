@@ -14,7 +14,7 @@ export function AdminTable({ columns, rows, empty }: { columns: Column[]; rows: 
         <thead>
           <tr className="border-b border-line">
             {columns.map((c) => (
-              <th key={c.label} scope="col" className={cn("px-3 py-4 font-sans text-[0.6rem] font-normal uppercase tracking-[0.22em] text-ivory-500", c.className)}>
+              <th key={c.label} scope="col" className={cn("px-3 py-4 font-sans text-sm font-normal text-ivory-500", c.className)}>
                 {c.label}
               </th>
             ))}
@@ -38,7 +38,7 @@ export function AdminTable({ columns, rows, empty }: { columns: Column[]; rows: 
 
 export function StatusDot({ on, labels = ["Published", "Hidden"] }: { on: boolean; labels?: [string, string] }) {
   return (
-    <span className="inline-flex items-center gap-2 font-sans text-[0.62rem] uppercase tracking-[0.18em] text-ivory-400">
+    <span className="inline-flex items-center gap-2 font-sans text-sm text-ivory-400">
       <span className={cn("h-1.5 w-1.5 rounded-full", on ? "bg-bronze" : "bg-ivory/25")} aria-hidden />
       {on ? labels[0] : labels[1]}
     </span>

@@ -35,7 +35,7 @@ const TYPE = { lecture: "Lecture", lab: "Lab", tutorial: "Tutorial", other: "Oth
 const Line = ({ main, meta }: { main: React.ReactNode; meta?: React.ReactNode }) => (
   <div>
     <p className="font-sans text-sm text-ivory">{main}</p>
-    {meta && <p className="mt-1 font-sans text-[0.6rem] uppercase tracking-[0.18em] text-ivory-500">{meta}</p>}
+    {meta && <p className="mt-1 font-sans text-sm text-ivory-500">{meta}</p>}
   </div>
 );
 
@@ -97,12 +97,12 @@ export default async function SemesterAdminPage({
   } else if (tab === "timetable") {
     body =
       courses.length === 0 ? (
-        <p className="font-display text-xl italic text-ivory-400">Add the courses first, then build the timetable.</p>
+        <p className="font-display text-xl text-ivory-400">Add the courses first, then build the timetable.</p>
       ) : (
         <div className="space-y-14">
           {[1, 2, 3, 4, 5, 6, 7].map((day) => (
             <section key={day} aria-label={weekdayName(day)}>
-              <h2 className="mb-3 font-display text-3xl font-light uppercase">{weekdayName(day)}</h2>
+              <h2 className="mb-3 font-display text-3xl font-bold">{weekdayName(day)}</h2>
               <RecordEditor
                 table="attendance_schedule"
                 semesterId={id}
@@ -191,7 +191,7 @@ export default async function SemesterAdminPage({
   } else if (tab === "overrides") {
     body = (
       <>
-        <p className="mb-8 max-w-2xl font-display text-lg italic leading-snug text-ivory-400">
+        <p className="mb-8 max-w-2xl font-display text-lg leading-snug text-ivory-400">
           Changes for a single date. They take precedence over the weekly timetable: cancel one class, move it to another day, or make a whole day
           (e.g. a working Saturday) run another weekday&rsquo;s timetable.
         </p>
@@ -243,7 +243,7 @@ export default async function SemesterAdminPage({
   } else if (tab === "checkpoints") {
     body = (
       <>
-        <p className="mb-8 max-w-2xl font-display text-lg italic leading-snug text-ivory-400">
+        <p className="mb-8 max-w-2xl font-display text-lg leading-snug text-ivory-400">
           Official attendance notices. Students copy their figures from a notice; the calendar counts classes from the resume date onward.
         </p>
         <RecordEditor

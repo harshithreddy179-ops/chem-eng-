@@ -26,17 +26,17 @@ export default async function AdminAttendancePage() {
         description="Semester dates, the weekly timetable, holidays and changes. Students' own marks stay on their devices."
       />
       {semesters.length === 0 ? (
-        <p className="border-t border-line py-8 font-display text-xl italic text-ivory-500">No semesters yet — add the first one below.</p>
+        <p className="border-t border-line py-8 font-display text-xl text-ivory-500">No semesters yet — add the first one below.</p>
       ) : (
         <ul className="border-t border-line">
           {semesters.map((s) => (
             <li key={s.id} className="border-b border-line">
               <Link href={`/admin/attendance/${s.id}`} className="flex flex-wrap items-center justify-between gap-4 py-5 hover:text-bronze-300">
                 <span>
-                  <span className="block font-display text-2xl font-light">
+                  <span className="block font-display text-2xl font-bold">
                     {s.name} · {s.academic_year}
                   </span>
-                  <span className="font-sans text-[0.62rem] uppercase tracking-[0.2em] text-ivory-500">
+                  <span className="font-sans text-sm text-ivory-500">
                     {s.group_label ? `${s.group_label} · ` : ""}
                     {formatShort(s.start_date)} {s.start_date.slice(0, 4)} – {formatShort(s.end_date)} {s.end_date.slice(0, 4)}
                   </span>

@@ -1,10 +1,10 @@
 import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 import type { Subject } from "@/types";
 import { ProgressRing } from "@/components/ui/ProgressRing";
-import { ProgressStat } from "@/components/ui/ProgressStat";
-import { SubjectMotif } from "@/components/visual/SubjectMotif";
-import { Reveal } from "@/components/motion/Reveal";
-import { pad } from "@/lib/utils";
+import { SubjectIcon } from "@/components/ui/SubjectIcon";
+import { subjectTheme } from "@/lib/palette";
+import { cn } from "@/lib/utils";
 
 export interface SubjectIndexRow {
   subject: Subject;
@@ -14,38 +14,35 @@ export interface SubjectIndexRow {
   keys: string[];
 }
 
-/** Large editorial rows of subjects inside a section, each with progress. */
+/** Grid of subject cards inside an exam, each with progress. */
 export function SubjectIndex({ rows }: { rows: SubjectIndexRow[] }) {
   return (
-    <ol className="border-t border-line">
-      {rows.map((row, i) => (
-        <Reveal as="li" key={row.subject.id} delay={i * 0.05} className="border-b border-line">
-          <Link href={row.href} className="group relative grid grid-cols-[2.25rem_1fr] items-center gap-x-4 gap-y-5 py-9 md:grid-cols-[4rem_1fr_9rem_10rem_3rem] md:gap-x-8 md:py-11">
-            <span aria-hidden className="absolute inset-0 origin-left scale-x-0 bg-gradient-to-r from-ivory/[0.035] to-transparent transition-transform duration-1000 ease-luxe group-hover:scale-x-100" />
-            <span className="relative font-sans text-xs tabular tracking-[0.2em] text-ivory-500 transition-colors duration-500 group-hover:text-bronze">
-              {pad(i + 1)}
-            </span>
-            <div className="relative min-w-0">
-              <h3 className="font-display text-[1.6rem] font-light uppercase leading-[0.95] sm:text-[2rem] transition-transform duration-1000 ease-luxe group-hover:translate-x-2 md:text-[3.1rem]">
-                {row.subject.name}
-              </h3>
-              <p className="mt-3 font-sans text-[0.62rem] uppercase tracking-[0.24em] text-ivory-500">
-                <span className="tabular">{row.chapters}</span> chapters · <span className="tabular">{row.resources}</span> resources ·{" "}
-                <ProgressStat keys={row.keys} className="text-ivory-300" />
-              </p>
-            </div>
-            <span aria-hidden className="relative col-start-2 hidden h-20 w-full text-ivory/25 transition-colors duration-1000 group-hover:text-bronze/70 md:col-start-auto md:block">
-              <SubjectMotif slug={row.subject.slug} />
-            </span>
-            <span className="relative col-start-2 flex items-center gap-4 md:col-start-auto md:justify-end">
-              <ProgressRing keys={row.keys} size={48} label={`${row.subject.name} progress`} />
-            </span>
-            <span aria-hidden className="relative hidden text-right font-sans text-lg text-ivory-400 transition-all duration-700 ease-luxe group-hover:translate-x-1 group-hover:text-bronze md:block">
-              →
-            </span>
-          </Link>
-        </Reveal>
-      ))}
-    </ol>
+    <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+      {rows.map((row) => {
+        const t = subjectTheme(row.subject.slug);
+        const empty = row.resources === 0 && row.chapters === 0;
+        return (
+          <li key={row.subject.id}>
+            <Link href={row.href} className={cn("card card-hover group flex h-full flex-col gap-4 p-5", empty && "opacity-75")}>
+              <div className="flex items-start justify-between gap-3">
+                <SubjectIcon slug={row.subject.slug} />
+                {row.keys.length > 0 && <ProgressRing keys={row.keys} label={`${row.subject.name} progress`} color={t.hex} />}
+              </div>
+              <div>
+                <h3 className="text-lg font-bold leading-snug text-slate-900">{row.subject.name}</h3>
+                <p className="mt-2 flex flex-wrap gap-1.5">
+                  <span className={cn("chip px-2.5 py-0.5 text-xs", t.soft, t.text)}>{row.chapters} chapters</span>
+                  <span className="chip bg-slate-100 px-2.5 py-0.5 text-xs text-slate-600">{row.resources} files</span>
+                </p>
+              </div>
+              <span className={cn("mt-auto inline-flex items-center gap-1.5 text-[15px] font-semibold", empty ? "text-slate-400" : t.text)}>
+                {empty ? "Nothing added yet" : "Open subject"}
+                {!empty && <ArrowRight className="h-4 w-4 transition group-hover:translate-x-0.5" />}
+              </span>
+            </Link>
+          </li>
+        );
+      })}
+    </ul>
   );
 }

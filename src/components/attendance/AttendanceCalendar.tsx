@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { useMemo } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { DayInfo, SemesterIndex } from "@/lib/attendance/engine";
@@ -23,7 +22,6 @@ interface Props {
 }
 
 export function AttendanceCalendar({ index, state, month, onMonth, selected, onSelect, today, trackFrom }: Props) {
-  const reduce = useReducedMotion();
   const { start_date, end_date } = index.config.semester;
   const firstMonth = start_date.slice(0, 7);
   const lastMonth = end_date.slice(0, 7);
@@ -40,27 +38,19 @@ export function AttendanceCalendar({ index, state, month, onMonth, selected, onS
 
   return (
     <section aria-label="Attendance calendar">
-      <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-4">
-        <div aria-live="polite" className="min-w-0">
-            <motion.h2
-              key={month}
-              initial={{ opacity: 0, y: reduce ? 0 : 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: reduce ? 0.1 : 0.6, ease: [0.22, 1, 0.36, 1] }}
-              className="font-display text-[2.6rem] font-light uppercase leading-none sm:text-5xl md:text-7xl"
-            >
-              {monthName(month)} <span className="italic text-ivory-400">{month.slice(0, 4)}</span>
-            </motion.h2>
-        </div>
-        <div className="flex shrink-0 items-center gap-1">
+      <div className="flex items-center justify-between gap-3">
+        <h2 aria-live="polite" className="text-2xl font-bold text-slate-900">
+          {monthName(month)} <span className="text-slate-500">{month.slice(0, 4)}</span>
+        </h2>
+        <div className="flex shrink-0 items-center gap-1.5">
           <button
             type="button"
             onClick={() => onMonth(addMonths(month, -1))}
             disabled={month <= firstMonth}
             aria-label="Previous month"
-            className="grid h-10 w-10 place-items-center border border-line text-ivory-300 transition-colors hover:border-ivory/30 hover:text-ivory disabled:opacity-25"
+            className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 disabled:opacity-30"
           >
-            <ChevronLeft className="h-4 w-4" strokeWidth={1.25} />
+            <ChevronLeft className="h-5 w-5" />
           </button>
           <button
             type="button"
@@ -69,7 +59,7 @@ export function AttendanceCalendar({ index, state, month, onMonth, selected, onS
               onSelect(today);
             }}
             disabled={!canToday}
-            className="h-10 border border-line px-4 font-sans text-[0.6rem] uppercase tracking-[0.24em] text-ivory-300 transition-colors hover:border-ivory/30 hover:text-ivory disabled:opacity-25"
+            className="h-10 rounded-xl border border-slate-200 px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 disabled:opacity-30"
           >
             Today
           </button>
@@ -78,22 +68,22 @@ export function AttendanceCalendar({ index, state, month, onMonth, selected, onS
             onClick={() => onMonth(addMonths(month, 1))}
             disabled={month >= lastMonth}
             aria-label="Next month"
-            className="grid h-10 w-10 place-items-center border border-line text-ivory-300 transition-colors hover:border-ivory/30 hover:text-ivory disabled:opacity-25"
+            className="grid h-10 w-10 place-items-center rounded-xl border border-slate-200 text-slate-700 transition hover:bg-slate-100 disabled:opacity-30"
           >
-            <ChevronRight className="h-4 w-4" strokeWidth={1.25} />
+            <ChevronRight className="h-5 w-5" />
           </button>
         </div>
       </div>
 
-      <div className="mt-8 grid grid-cols-7 border-b border-line pb-3" aria-hidden>
+      <div className="mt-5 grid grid-cols-7 gap-1.5 pb-2" aria-hidden>
         {HEAD.map((h, i) => (
-          <span key={h} className={cn("text-center font-sans text-[0.58rem] uppercase tracking-[0.26em]", i >= 5 ? "text-ivory-500" : "text-ivory-400")}>
+          <span key={h} className={cn("text-center text-sm font-semibold", i === 6 ? "text-rose-500" : "text-slate-500")}>
             {h}
           </span>
         ))}
       </div>
 
-      <div role="grid" aria-label={`${monthName(month)} ${month.slice(0, 4)}`} className="grid grid-cols-7">
+      <div role="grid" aria-label={`${monthName(month)} ${month.slice(0, 4)}`} className="grid grid-cols-7 gap-1.5">
         {grid.map((d, i) =>
           d ? (
             <DayCell
@@ -107,17 +97,17 @@ export function AttendanceCalendar({ index, state, month, onMonth, selected, onS
               onSelect={onSelect}
             />
           ) : (
-            <span key={`pad-${i}`} className="border-b border-line" aria-hidden />
+            <span key={`pad-${i}`} aria-hidden />
           ),
         )}
       </div>
 
-      <dl className="mt-6 flex flex-wrap gap-x-6 gap-y-2 font-sans text-[0.58rem] uppercase tracking-[0.2em] text-ivory-500">
-        <Legend swatch={<span className="h-1 w-3 bg-bronze" />} label="Present" />
-        <Legend swatch={<span className="h-1 w-3 border border-ivory/70" />} label="Absent" />
-        <Legend swatch={<span className="h-px w-3 bg-ivory/40" />} label="Cancelled" />
-        <Legend swatch={<span className="h-1 w-3 bg-ivory/15" />} label="Not marked / upcoming" />
-        <Legend swatch={<span className="font-display text-sm normal-case tracking-normal text-garnet">12</span>} label="Holiday" />
+      <dl className="mt-4 flex flex-wrap gap-x-4 gap-y-2 text-sm text-slate-600">
+        <Legend swatch={<span className="h-2.5 w-2.5 rounded-full bg-emerald-500" />} label="Present" />
+        <Legend swatch={<span className="h-2.5 w-2.5 rounded-full bg-rose-500" />} label="Absent" />
+        <Legend swatch={<span className="h-2.5 w-2.5 rounded-full bg-slate-400" />} label="Cancelled" />
+        <Legend swatch={<span className="h-2.5 w-2.5 rounded-full border-2 border-slate-300 bg-white" />} label="Not marked" />
+        <Legend swatch={<span className="h-3 w-3 rounded bg-rose-100 ring-1 ring-rose-200" />} label="Holiday" />
       </dl>
     </section>
   );
@@ -125,7 +115,7 @@ export function AttendanceCalendar({ index, state, month, onMonth, selected, onS
 
 function Legend({ swatch, label }: { swatch: React.ReactNode; label: string }) {
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <dt className="flex items-center">{swatch}</dt>
       <dd>{label}</dd>
     </div>
@@ -172,59 +162,56 @@ function DayCell({
       aria-current={today ? "date" : undefined}
       disabled={outside}
       onClick={() => onSelect(info.date)}
+      title={holiday ? info.holiday ?? undefined : undefined}
       className={cn(
-        "group relative flex aspect-[1/1.05] flex-col items-start justify-between border-b border-line p-1.5 text-left transition-colors duration-500 sm:aspect-[1/0.95] sm:p-3",
-        outside ? "cursor-default opacity-25" : "hover:bg-ivory/[0.03]",
-        selected && "bg-ivory/[0.05]",
+        "relative flex aspect-square flex-col items-center justify-between rounded-xl border p-1 text-center transition sm:aspect-[1/0.9] sm:p-1.5",
+        outside && "cursor-default border-transparent opacity-30",
+        !outside && !selected && (holiday ? "border-rose-200 bg-rose-50 hover:bg-rose-100" : "border-slate-100 bg-white hover:border-brand-200 hover:bg-brand-50/50"),
+        selected && "border-brand-600 bg-brand-600 text-white shadow-md",
+        today && !selected && "ring-2 ring-brand-500 ring-offset-1",
       )}
     >
-      {selected && <span aria-hidden className="absolute inset-0 border border-ivory/40" />}
-      <span className="flex w-full items-start justify-between gap-1">
-        <span
-          className={cn(
-            "relative font-display text-xl leading-none tabular sm:text-3xl",
-            holiday ? "text-garnet" : future && !today ? "text-ivory/55" : "text-ivory",
-            (info.kind === "no-class" || covered) && !holiday && "text-ivory/35",
-          )}
-        >
-          {n}
-          {today && <span aria-hidden className="absolute -bottom-1.5 left-0 h-px w-full bg-bronze" />}
-        </span>
-        {info.followsWeekday || info.kind === "tba" ? (
-          <span className="hidden font-sans text-[0.5rem] uppercase tracking-[0.16em] text-bronze-300 sm:block">
-            {info.kind === "tba" ? "TBA" : `as ${weekdayShort(info.followsWeekday!)}`}
-          </span>
-        ) : null}
+      <span
+        className={cn(
+          "text-base font-bold leading-none tabular sm:text-lg",
+          selected ? "text-white" : holiday ? "text-rose-600" : (info.kind === "no-class" || covered) ? "text-slate-300" : future ? "text-slate-500" : "text-slate-900",
+        )}
+      >
+        {n}
       </span>
-
       {holiday ? (
-        <span className="line-clamp-2 w-full font-sans text-[0.5rem] uppercase leading-tight tracking-[0.12em] text-garnet/90 sm:text-[0.55rem]">
+        <span className={cn("line-clamp-1 w-full text-[10px] font-semibold leading-tight sm:text-[11px]", selected ? "text-white/90" : "text-rose-600")}>
           {info.holiday}
         </span>
       ) : info.kind === "tba" ? (
-        <span className="font-sans text-[0.5rem] uppercase tracking-[0.14em] text-ivory-500 sm:hidden">TBA</span>
+        <span className={cn("text-[10px] font-bold sm:text-[11px]", selected ? "text-white/90" : "text-amber-600")}>TBA</span>
+      ) : info.followsWeekday ? (
+        <span className={cn("hidden text-[10px] font-bold sm:block sm:text-[11px]", selected ? "text-white/90" : "text-amber-600")}>as {weekdayShort(info.followsWeekday)}</span>
       ) : null}
 
-      {bars.length > 0 && (
-        <span className="flex w-full flex-wrap gap-[3px]" aria-hidden>
+      {bars.length > 0 && !holiday && (
+        <span className="flex flex-wrap justify-center gap-[3px]" aria-hidden>
           {bars.map((o) => {
             const mark = state.marks[o.key];
+            const cancelled = o.cancelledByAdmin || mark === "cancelled";
             return (
               <span
                 key={o.key}
                 className={cn(
-                  "h-[3px] w-2 sm:h-1 sm:w-3",
-                  o.cancelledByAdmin || mark === "cancelled"
-                    ? "mt-[1px] h-px bg-ivory/40 sm:h-px"
+                  "h-1.5 w-1.5 rounded-full sm:h-2 sm:w-2",
+                  cancelled
+                    ? "bg-slate-400"
                     : mark === "present"
                       ? future
-                        ? "bg-bronze/50"
-                        : "bg-bronze"
+                        ? "bg-emerald-300"
+                        : "bg-emerald-500"
                       : mark === "absent"
-                        ? "border border-ivory/70"
+                        ? "bg-rose-500"
                         : covered
-                          ? "bg-ivory/[0.07]"
-                          : "bg-ivory/15",
+                          ? "bg-slate-200"
+                          : selected
+                            ? "border border-white/80"
+                            : "border-[1.5px] border-slate-300 bg-white",
                 )}
               />
             );

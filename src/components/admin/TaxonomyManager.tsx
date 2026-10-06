@@ -30,7 +30,7 @@ export function TaxonomyManager({ kind, rows, noun }: { kind: Kind; rows: Row[];
         ))}
       </ol>
       <div className="mt-14">
-        <h2 className="font-display text-3xl font-light uppercase">Add a {noun}</h2>
+        <h2 className="font-display text-3xl font-bold">Add a {noun}</h2>
         <NewTaxonomyForm kind={kind} nextOrder={(rows.at(-1)?.display_order ?? 0) + 1} />
       </div>
     </div>
@@ -43,9 +43,9 @@ function TaxonomyRow({ kind, row, index, isFirst, isLast }: { kind: Kind; row: R
   return (
     <div className="py-5">
       <div className="flex flex-wrap items-center gap-4">
-        <span className="w-8 font-sans text-xs tabular tracking-[0.2em] text-bronze">{pad(index + 1)}</span>
+        <span className="w-8 font-sans text-xs tabular text-bronze">{pad(index + 1)}</span>
         <div className="min-w-0 flex-1">
-          <p className={cn("font-display text-2xl font-light uppercase", !row.is_enabled && "text-ivory-500 line-through decoration-1")}>{row.name}</p>
+          <p className={cn("font-display text-2xl font-bold", !row.is_enabled && "text-ivory-500 line-through decoration-1")}>{row.name}</p>
           <p className="font-sans text-xs text-ivory-500">/{row.slug} {row.is_enabled ? "" : "· disabled"}</p>
         </div>
         <div className="flex items-center gap-1">
@@ -64,7 +64,7 @@ function TaxonomyRow({ kind, row, index, isFirst, isLast }: { kind: Kind; row: R
               </button>
             </form>
           ))}
-          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="ml-3 font-sans text-[0.65rem] uppercase tracking-[0.2em] text-ivory-300 hover:text-bronze-300">
+          <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} className="ml-3 font-sans text-sm text-ivory-300 hover:text-bronze-300">
             {open ? "Close" : "Edit"}
           </button>
         </div>

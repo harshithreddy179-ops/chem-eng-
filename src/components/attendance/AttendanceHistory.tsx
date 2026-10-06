@@ -7,11 +7,11 @@ import type { AttendanceCourse, ISODate } from "@/types/attendance";
 import { cn } from "@/lib/utils";
 
 const SYMBOL = {
-  present: { s: "✓", label: "Present", cls: "text-bronze-300" },
-  absent: { s: "✕", label: "Absent", cls: "text-ivory" },
-  cancelled: { s: "—", label: "Cancelled", cls: "text-ivory-500" },
-  "dept-cancelled": { s: "—", label: "Cancelled by dept.", cls: "text-ivory-500" },
-  unmarked: { s: "·", label: "Not marked", cls: "text-ivory-500" },
+  present: { label: "Present", cls: "bg-emerald-50 text-emerald-700" },
+  absent: { label: "Absent", cls: "bg-rose-50 text-rose-700" },
+  cancelled: { label: "Cancelled", cls: "bg-slate-100 text-slate-600" },
+  "dept-cancelled": { label: "Cancelled by dept.", cls: "bg-slate-100 text-slate-600" },
+  unmarked: { label: "Not marked", cls: "bg-amber-50 text-amber-700" },
 } as const;
 
 export function AttendanceHistory({
@@ -35,10 +35,10 @@ export function AttendanceHistory({
   }, [stats, courseId]);
 
   return (
-    <div className="grid gap-10 md:grid-cols-12">
+    <div className="card grid gap-6 p-4 md:grid-cols-12 md:p-5">
       <div className="md:col-span-4">
         <label className="block">
-          <span className="field-label">Subject</span>
+          <span className="field-label">Choose subject</span>
           <select className="field" value={courseId} onChange={(e) => setCourseId(e.target.value)}>
             {courses.map((c) => (
               <option key={c.id} value={c.id}>
@@ -48,32 +48,25 @@ export function AttendanceHistory({
           </select>
         </label>
       </div>
-      <div className="md:col-span-8">
+      <div className="max-h-[32rem] overflow-y-auto md:col-span-8">
         {months.length === 0 ? (
-          <p className="border-t border-line pt-6 font-display text-xl italic text-ivory-400">No classes recorded yet for this subject.</p>
+          <p className="py-4 text-[15px] text-slate-500">No classes yet for this subject.</p>
         ) : (
           months.map(([m, rows]) => (
-            <section key={m} className="mb-10" aria-label={`${monthName(m)} ${m.slice(0, 4)}`}>
-              <h3 className="eyebrow mb-3">
-                {monthName(m)} <span className="text-ivory-500">{m.slice(0, 4)}</span>
+            <section key={m} className="mb-6" aria-label={`${monthName(m)} ${m.slice(0, 4)}`}>
+              <h3 className="mb-2 text-[15px] font-bold text-slate-900">
+                {monthName(m)} {m.slice(0, 4)}
               </h3>
-              <ul className="border-t border-line">
+              <ul className="divide-y divide-line rounded-xl border border-line">
                 {rows.map((h) => {
                   const sym = SYMBOL[h.status];
                   return (
-                    <li key={h.key} className="border-b border-line">
-                      <button
-                        type="button"
-                        onClick={() => onOpen(h.date)}
-                        className="flex w-full items-center gap-5 py-3 text-left transition-colors hover:bg-ivory/[0.02]"
-                      >
-                        <span className="w-14 font-display text-2xl tabular">{h.date.slice(8)}</span>
-                        <span className="w-10 font-sans text-[0.6rem] uppercase tracking-[0.2em] text-ivory-500">{weekdayShort(weekday(h.date))}</span>
-                        <span className="w-14 font-sans text-xs tabular text-ivory-500">{h.start}</span>
-                        <span className={cn("flex items-center gap-3 font-sans text-[0.62rem] uppercase tracking-[0.22em]", sym.cls)}>
-                          <span aria-hidden className="w-3 font-display text-base normal-case tracking-normal">{sym.s}</span>
-                          {sym.label}
-                        </span>
+                    <li key={h.key}>
+                      <button type="button" onClick={() => onOpen(h.date)} className="flex w-full items-center gap-4 px-3 py-2.5 text-left transition hover:bg-slate-50">
+                        <span className="w-9 text-lg font-bold tabular text-slate-900">{h.date.slice(8)}</span>
+                        <span className="w-10 text-sm font-medium text-slate-500">{weekdayShort(weekday(h.date))}</span>
+                        <span className="w-14 text-sm tabular text-slate-500">{h.start}</span>
+                        <span className={cn("chip ml-auto", sym.cls)}>{sym.label}</span>
                       </button>
                     </li>
                   );

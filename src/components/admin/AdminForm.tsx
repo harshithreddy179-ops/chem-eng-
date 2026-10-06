@@ -93,7 +93,7 @@ export function FormSection({ title, children, description }: { title: string; d
   return (
     <section className="grid gap-6 border-t border-line py-10 md:grid-cols-12 md:gap-10">
       <div className="md:col-span-4">
-        <h2 className="font-display text-2xl font-light uppercase">{title}</h2>
+        <h2 className="font-display text-2xl font-bold">{title}</h2>
         {description && <p className="mt-2 font-sans text-sm leading-relaxed text-ivory-500">{description}</p>}
       </div>
       <div className="grid gap-8 md:col-span-8">{children}</div>

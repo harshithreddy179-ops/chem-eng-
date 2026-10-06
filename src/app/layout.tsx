@@ -4,6 +4,9 @@ import "@fontsource/cormorant-garamond/latin-300-italic.css";
 import "@fontsource/cormorant-garamond/latin-400.css";
 import "@fontsource/cormorant-garamond/latin-400-italic.css";
 import "@fontsource/cormorant-garamond/latin-500.css";
+import "@fontsource/cormorant-garamond/latin-600.css";
+import "@fontsource/cormorant-garamond/latin-700.css";
+import "@fontsource/cormorant-garamond/latin-700-italic.css";
 import "@fontsource-variable/inter";
 import "katex/dist/katex.min.css";
 import "@/styles/globals.css";
@@ -46,8 +49,8 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0d0c0b",
-  colorScheme: "dark",
+  themeColor: "#ffffff",
+  colorScheme: "light",
   width: "device-width",
   initialScale: 1,
 };

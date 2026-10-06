@@ -1,10 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
+import { ArrowLeft, ArrowRight, Check, RotateCcw, Trophy, X } from "lucide-react";
 import { SolutionReveal } from "./SolutionReveal";
-import { pad, cn } from "@/lib/utils";
+import { cn } from "@/lib/utils";
 
 export interface PracticeItem {
   id: string;
@@ -18,9 +18,8 @@ export interface PracticeItem {
 
 type Mark = "solved" | "review";
 
-/** A calm, one-question-at-a-time practice run. Self-assessed — never auto-graded. */
+/** One question at a time. You mark yourself — nothing is auto-graded. */
 export function PracticeSession({ items, restartHref }: { items: PracticeItem[]; restartHref: string }) {
-  const reduce = useReducedMotion();
   const [index, setIndex] = useState(0);
   const [marks, setMarks] = useState<Record<string, Mark>>({});
   const [finished, setFinished] = useState(false);
@@ -45,40 +44,44 @@ export function PracticeSession({ items, restartHref }: { items: PracticeItem[];
   }, [next, prev]);
 
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
-  }, [index, finished, reduce]);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, [index, finished]);
+
+  const solved = items.filter((q) => marks[q.id] === "solved").length;
+  const review = items.filter((q) => marks[q.id] === "review");
 
   if (finished) {
-    const solved = items.filter((q) => marks[q.id] === "solved").length;
-    const review = items.filter((q) => marks[q.id] === "review");
+    const pct = Math.round((solved / total) * 100);
     return (
-      <motion.section
-        initial={{ opacity: 0, y: reduce ? 0 : 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1, ease: [0.22, 1, 0.36, 1] }}
-        aria-label="Session summary"
-      >
-        <p className="eyebrow text-bronze">Session complete</p>
-        <h2 className="mt-8 font-display text-display-lg font-light uppercase">
-          {solved} <span className="italic text-ivory-400">of</span> {total}
-        </h2>
-        <p className="mt-4 font-display text-2xl italic text-ivory-300">marked as solved on paper.</p>
+      <section aria-label="Practice result" className="mx-auto max-w-2xl">
+        <div className="card overflow-hidden">
+          <div className="bg-gradient-to-r from-brand-600 to-violet-600 px-6 py-8 text-center text-white">
+            <Trophy className="mx-auto h-10 w-10" />
+            <h2 className="mt-3 font-display text-4xl font-bold">Practice complete!</h2>
+            <p className="mt-1 text-white/85">Here&rsquo;s how you did</p>
+          </div>
+          <div className="grid grid-cols-3 divide-x divide-line text-center">
+            <Stat label="Got right" value={solved} tone="text-emerald-600" />
+            <Stat label="To revise" value={review.length} tone="text-rose-600" />
+            <Stat label="Score" value={`${pct}%`} tone="text-brand-600" />
+          </div>
+        </div>
         {review.length > 0 && (
-          <div className="mt-16">
-            <p className="eyebrow">Worth another look</p>
-            <ul className="mt-5 border-t border-line">
+          <div className="card mt-5 p-5">
+            <p className="text-lg font-bold text-slate-900">Revise these questions</p>
+            <ul className="mt-3 space-y-2">
               {review.map((q) => (
-                <li key={q.id} className="border-b border-line">
-                  <Link href={`/pyqs/${q.id}`} className="group flex items-center justify-between gap-6 py-5">
-                    <span className="font-display text-xl text-ivory">{q.title}</span>
-                    <span aria-hidden className="text-ivory-400 transition-transform duration-500 group-hover:translate-x-1 group-hover:text-bronze">→</span>
+                <li key={q.id}>
+                  <Link href={`/pyqs/${q.id}`} className="flex items-center justify-between gap-4 rounded-xl border border-line p-3 font-semibold text-slate-800 hover:border-brand-200 hover:bg-brand-50/50">
+                    {q.title}
+                    <ArrowRight className="h-4 w-4 shrink-0 text-slate-400" />
                   </Link>
                 </li>
               ))}
             </ul>
           </div>
         )}
-        <div className="mt-16 flex flex-wrap gap-5">
+        <div className="mt-5 flex flex-wrap gap-3">
           <button
             type="button"
             className="btn-solid"
@@ -88,92 +91,118 @@ export function PracticeSession({ items, restartHref }: { items: PracticeItem[];
               setFinished(false);
             }}
           >
-            Go again
+            <RotateCcw className="h-4 w-4" /> Try again
           </button>
           <Link href={restartHref} className="btn-luxe">
-            New session
+            New practice set
           </Link>
         </div>
-      </motion.section>
+      </section>
     );
   }
 
   return (
-    <div>
-      {/* Session rail */}
-      <div className="sticky top-[4.5rem] z-20 -mx-5 border-b border-line bg-ink/85 px-5 py-4 backdrop-blur-xl sm:-mx-8 sm:px-8 md:top-20 lg:-mx-14 lg:px-14">
-        <div className="flex items-center justify-between gap-6">
-          <p className="font-sans text-[0.65rem] uppercase tracking-[0.3em] text-ivory-300" aria-live="polite">
-            Question <span className="tabular text-ivory">{pad(index + 1)}</span> / <span className="tabular">{pad(total)}</span>
-          </p>
-          <div className="flex flex-1 justify-end gap-1.5" aria-hidden>
-            {items.map((q, i) => (
-              <span
-                key={q.id}
-                className={cn(
-                  "h-px max-w-10 flex-1 transition-colors duration-700",
-                  i === index ? "bg-ivory" : marks[q.id] === "solved" ? "bg-bronze" : marks[q.id] === "review" ? "bg-ivory/40" : "bg-ivory/10",
-                )}
-              />
-            ))}
+    <div className="grid gap-6 lg:grid-cols-12">
+      <div className="space-y-5 lg:col-span-8">
+        <div className="card flex items-center gap-4 p-4">
+          <span className="text-[15px] font-bold text-slate-900" aria-live="polite">
+            Question {index + 1} of {total}
+          </span>
+          <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
+            <div className="h-full rounded-full bg-brand-600 transition-all" style={{ width: `${((index + 1) / total) * 100}%` }} />
           </div>
+        </div>
+
+        <div key={item.id} className="space-y-5">
+          {item.statement}
+          <SolutionReveal hasSolution={item.hasSolution} correctAnswer={item.correctAnswer} resetKey={item.id}>
+            {item.solution}
+          </SolutionReveal>
+
+          <fieldset className="card p-4">
+            <legend className="sr-only">How did it go?</legend>
+            <p className="mb-3 text-[15px] font-semibold text-slate-700">Did you get it right?</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button
+                type="button"
+                aria-pressed={marks[item.id] === "solved"}
+                onClick={() => setMarks((m) => ({ ...m, [item.id]: "solved" }))}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-[15px] font-bold transition",
+                  marks[item.id] === "solved" ? "border-emerald-500 bg-emerald-500 text-white" : "border-emerald-200 bg-emerald-50 text-emerald-700 hover:border-emerald-400",
+                )}
+              >
+                <Check className="h-5 w-5" /> Yes, solved it
+              </button>
+              <button
+                type="button"
+                aria-pressed={marks[item.id] === "review"}
+                onClick={() => setMarks((m) => ({ ...m, [item.id]: "review" }))}
+                className={cn(
+                  "flex items-center justify-center gap-2 rounded-xl border-2 px-4 py-3 text-[15px] font-bold transition",
+                  marks[item.id] === "review" ? "border-rose-500 bg-rose-500 text-white" : "border-rose-200 bg-rose-50 text-rose-700 hover:border-rose-400",
+                )}
+              >
+                <X className="h-5 w-5" /> No, need to revise
+              </button>
+            </div>
+          </fieldset>
+        </div>
+
+        <div className="flex items-center justify-between gap-3">
+          <button type="button" onClick={prev} disabled={index === 0} className="btn-luxe">
+            <ArrowLeft className="h-4 w-4" /> Previous
+          </button>
+          <button type="button" onClick={next} className="btn-solid">
+            {index === total - 1 ? "Finish" : "Next question"} <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={item.id}
-          initial={{ opacity: 0, x: reduce ? 0 : 30 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: reduce ? 0 : -30 }}
-          transition={{ duration: reduce ? 0.15 : 0.7, ease: [0.22, 1, 0.36, 1] }}
-          className="grid gap-16 pt-14 lg:grid-cols-12"
-        >
-          <div className="lg:col-span-8">
-            {item.statement}
-            <p className="mt-14 font-display text-xl italic text-ivory-400">Solve it physically.</p>
-            <SolutionReveal className="mt-8" hasSolution={item.hasSolution} correctAnswer={item.correctAnswer} resetKey={item.id}>
-              {item.solution}
-            </SolutionReveal>
-
-            <fieldset className="mt-12">
-              <legend className="eyebrow mb-4">How did it go?</legend>
-              <div className="flex flex-wrap gap-3">
-                {(
-                  [
-                    ["solved", "I solved it"],
-                    ["review", "Needs review"],
-                  ] as const
-                ).map(([value, label]) => (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={marks[item.id] === value}
-                    onClick={() => setMarks((m) => ({ ...m, [item.id]: value }))}
-                    className={cn(
-                      "border px-5 py-3 font-sans text-[0.65rem] uppercase tracking-[0.24em] transition-colors duration-500",
-                      marks[item.id] === value ? "border-bronze bg-bronze/15 text-ivory" : "border-line text-ivory-400 hover:border-ivory/30 hover:text-ivory",
-                    )}
-                  >
-                    {label}
-                  </button>
-                ))}
-              </div>
-            </fieldset>
-          </div>
-          <div className="lg:col-span-4 lg:pt-40">{item.related}</div>
-        </motion.div>
-      </AnimatePresence>
-
-      <div className="mt-20 flex items-center justify-between gap-6 border-t border-line pt-8">
-        <button type="button" onClick={prev} disabled={index === 0} className="link-luxe text-ivory-400 disabled:opacity-30">
-          ← Previous
-        </button>
-        <button type="button" onClick={next} className="btn-solid">
-          {index === total - 1 ? "Finish session" : "Next question →"}
-        </button>
+      <div className="space-y-5 lg:col-span-4">
+        <div className="card p-4">
+          <p className="text-[15px] font-bold text-slate-900">All questions</p>
+          <ol className="mt-3 grid grid-cols-6 gap-2">
+            {items.map((q, i) => (
+              <li key={q.id}>
+                <button
+                  type="button"
+                  onClick={() => setIndex(i)}
+                  aria-label={`Go to question ${i + 1}`}
+                  aria-current={i === index ? "step" : undefined}
+                  className={cn(
+                    "grid h-10 w-full place-items-center rounded-lg text-sm font-bold transition",
+                    i === index
+                      ? "bg-brand-600 text-white"
+                      : marks[q.id] === "solved"
+                        ? "bg-emerald-100 text-emerald-700"
+                        : marks[q.id] === "review"
+                          ? "bg-rose-100 text-rose-700"
+                          : "bg-slate-100 text-slate-600 hover:bg-slate-200",
+                  )}
+                >
+                  {i + 1}
+                </button>
+              </li>
+            ))}
+          </ol>
+          <p className="mt-3 flex flex-wrap gap-x-4 gap-y-1 text-xs font-medium text-slate-500">
+            <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-emerald-400" /> Solved</span>
+            <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-rose-400" /> Revise</span>
+            <span className="flex items-center gap-1.5"><i className="h-2.5 w-2.5 rounded-full bg-slate-300" /> Not marked</span>
+          </p>
+        </div>
+        {item.related}
       </div>
-      <p className="mt-6 text-right font-sans text-[0.6rem] uppercase tracking-[0.2em] text-ivory-500">← → keys to move</p>
+    </div>
+  );
+}
+
+function Stat({ label, value, tone }: { label: string; value: React.ReactNode; tone: string }) {
+  return (
+    <div className="px-3 py-5">
+      <p className={cn("text-3xl font-bold tabular", tone)}>{value}</p>
+      <p className="mt-1 text-sm font-medium text-slate-500">{label}</p>
     </div>
   );
 }

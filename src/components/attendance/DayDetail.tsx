@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import type { CourseStats, DayInfo } from "@/lib/attendance/engine";
 import { formatPercent, whatIf } from "@/lib/attendance/engine";
 import { formatLong, formatShort, weekday, weekdayName } from "@/lib/attendance/dates";
@@ -23,7 +22,6 @@ interface Props {
 }
 
 export function DayDetail({ day, today, trackFrom, coveredByCheckpoint, courses, stats, state, onMark, onMarkAll }: Props) {
-  const reduce = useReducedMotion();
   const future = day.date > today;
   const isToday = day.date === today;
   const covered = day.date < trackFrom && day.kind !== "outside";
@@ -35,7 +33,7 @@ export function DayDetail({ day, today, trackFrom, coveredByCheckpoint, courses,
     : day.kind === "holiday"
       ? "Holiday"
       : covered
-        ? "Before tracking"
+        ? "Already counted"
         : isToday
           ? "Today"
           : future
@@ -43,117 +41,99 @@ export function DayDetail({ day, today, trackFrom, coveredByCheckpoint, courses,
             : markable.length && unmarked.length === 0
               ? "Recorded"
               : markable.length
-                ? "Awaiting your marks"
+                ? "Not marked yet"
                 : "No classes";
 
-  return (
-      <motion.section
-        key={day.date}
-        aria-label={`Classes on ${formatLong(day.date)}`}
-        initial={{ opacity: 0, y: reduce ? 0 : 14 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: reduce ? 0.1 : 0.55, ease: [0.22, 1, 0.36, 1] }}
-        className="border border-line p-5 sm:p-8"
-      >
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <p className="font-sans text-[0.62rem] uppercase tracking-[0.3em] text-ivory-400">{weekdayName(weekday(day.date))}</p>
-            <p className="mt-2 font-display text-4xl font-light uppercase leading-none md:text-5xl">
-              {String(Number(day.date.slice(8))).padStart(2, "0")}{" "}
-              <span className="text-ivory-300">{formatShort(day.date).split(" ")[1]}</span>
-            </p>
-          </div>
-          <span
-            className={cn(
-              "border px-3 py-1.5 font-sans text-[0.55rem] uppercase tracking-[0.22em]",
-              day.kind === "holiday" ? "border-garnet/50 text-garnet-300" : isToday ? "border-bronze/60 text-bronze-300" : "border-line text-ivory-400",
-            )}
-          >
-            {tag}
-          </span>
-        </div>
+  const tagTone =
+    day.kind === "holiday"
+      ? "bg-rose-50 text-rose-700"
+      : isToday
+        ? "bg-brand-50 text-brand-700"
+        : tag === "Recorded"
+          ? "bg-emerald-50 text-emerald-700"
+          : tag === "Not marked yet"
+            ? "bg-amber-50 text-amber-700"
+            : "bg-slate-100 text-slate-600";
 
+  return (
+    <section key={day.date} aria-label={`Classes on ${formatLong(day.date)}`} className="card overflow-hidden">
+      <div className="flex items-center justify-between gap-4 border-b border-line bg-slate-50/70 px-5 py-4">
+        <div>
+          <p className="text-sm font-semibold text-slate-500">{weekdayName(weekday(day.date))}</p>
+          <p className="text-2xl font-bold text-slate-900">
+            {Number(day.date.slice(8))} {formatShort(day.date).split(" ")[1]}
+          </p>
+        </div>
+        <span className={cn("chip", tagTone)}>{tag}</span>
+      </div>
+
+      <div className="px-5 py-4">
         {day.kind === "holiday" && (
-          <div className="mt-8 border-t border-line pt-6">
-            <p className="font-sans text-[0.62rem] uppercase tracking-[0.3em] text-garnet-300">Holiday</p>
-            <p className="mt-2 font-display text-3xl font-light">{day.holiday}</p>
-            {day.occurrences.length === 0 && (
-              <p className="mt-3 font-display text-lg italic text-ivory-400">No classes — nothing here counts towards attendance.</p>
-            )}
+          <div className="rounded-xl bg-rose-50 p-4">
+            <p className="text-sm font-semibold text-rose-600">Holiday</p>
+            <p className="text-xl font-bold text-rose-800">{day.holiday}</p>
+            {day.occurrences.length === 0 && <p className="mt-1 text-[15px] text-rose-700">No classes today. Nothing counts for attendance.</p>}
           </div>
         )}
 
         {day.kind === "tba" && (
-          <p className="mt-8 border-t border-line pt-6 font-display text-xl italic leading-snug text-ivory-300">
-            {day.note ? `${day.note}. ` : ""}Classes are held today, but which timetable runs hasn&rsquo;t been announced yet.
+          <p className="rounded-xl bg-amber-50 p-4 text-[15px] text-amber-800">
+            {day.note ? `${day.note}. ` : ""}There are classes today, but which day&rsquo;s timetable will run hasn&rsquo;t been announced yet.
           </p>
         )}
 
         {day.followsWeekday && (
-          <p className="mt-6 font-sans text-[0.62rem] uppercase tracking-[0.24em] text-bronze-300">
-            {day.note ? `${day.note} · ` : ""}Follows the {weekdayName(day.followsWeekday)} timetable
+          <p className="mb-2 rounded-xl bg-amber-50 px-3 py-2 text-sm font-semibold text-amber-800">
+            {day.note ? `${day.note} · ` : ""}Today follows the {weekdayName(day.followsWeekday)} timetable
           </p>
         )}
 
-        {(day.kind === "no-class" || (day.kind === "outside")) && (
-          <p className="mt-8 border-t border-line pt-6 font-display text-xl italic text-ivory-400">
-            {day.kind === "outside" ? "This date is outside the semester." : "No classes scheduled."}
-          </p>
+        {(day.kind === "no-class" || day.kind === "outside") && (
+          <p className="py-6 text-center text-[15px] text-slate-500">{day.kind === "outside" ? "This date is outside the semester." : "No classes on this day."}</p>
         )}
 
         {covered && day.occurrences.length > 0 && (
-          <p className="mt-6 font-display text-lg italic leading-snug text-ivory-400">
+          <p className="mb-2 rounded-xl bg-slate-50 px-3 py-2 text-sm text-slate-600">
             {coveredByCheckpoint
-              ? `Covered by your figures from the ${coveredByCheckpoint}. Tracking begins ${formatShort(trackFrom)}.`
-              : `Tracking begins ${formatShort(trackFrom)}.`}
+              ? `Already counted in your ${coveredByCheckpoint} numbers. You mark classes from ${formatShort(trackFrom)}.`
+              : `You mark classes from ${formatShort(trackFrom)}.`}
           </p>
         )}
 
         {day.occurrences.length > 0 && (
-          <ol className="mt-8 border-t border-line">
+          <ol className="divide-y divide-line">
             {day.occurrences.map((o) => {
               const course = courses.get(o.courseId);
               const s = stats.get(o.courseId);
               const mark = state.marks[o.key];
               const prediction = s && future && !o.cancelledByAdmin ? whatIf(s) : null;
               return (
-                <li key={o.key} className="border-b border-line py-6">
-                  <div className="flex items-baseline justify-between gap-4">
-                    <p className="font-sans text-xs tabular tracking-[0.18em] text-ivory-400">
-                      {o.start} — {o.end}
-                    </p>
-                    <p className="font-sans text-[0.55rem] uppercase tracking-[0.22em] text-ivory-500">
+                <li key={o.key} className="py-4">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <span className="chip bg-brand-50 text-brand-700 tabular">
+                      {o.start} – {o.end}
+                    </span>
+                    <span className="text-sm text-slate-500">
                       {[TYPE_LABEL[o.classType], o.room, o.batch && `Batch ${o.batch}`].filter(Boolean).join(" · ")}
-                    </p>
+                    </span>
                   </div>
-                  <p className={cn("mt-2 font-display text-2xl font-light leading-tight md:text-[1.7rem]", o.cancelledByAdmin && "text-ivory-500 line-through decoration-1")}>
-                    {course?.name ?? "Class"}
-                  </p>
+                  <p className={cn("mt-2 text-lg font-bold leading-snug text-slate-900", o.cancelledByAdmin && "text-slate-400 line-through")}>{course?.name ?? "Class"}</p>
                   {(course?.code || o.note) && (
-                    <p className="mt-1 font-sans text-[0.6rem] uppercase tracking-[0.2em] text-ivory-500">
+                    <p className="text-sm text-slate-500">
                       {[course?.code, o.source !== "timetable" || o.cancelledByAdmin ? o.note : null].filter(Boolean).join(" · ")}
                     </p>
                   )}
 
                   {o.cancelledByAdmin ? (
-                    <p className="mt-4 font-sans text-[0.62rem] uppercase tracking-[0.22em] text-ivory-400">— Cancelled by the department · not counted</p>
+                    <p className="mt-2 text-sm font-semibold text-slate-500">Cancelled by the department · not counted</p>
                   ) : covered ? null : (
-                    <div className="mt-4">
-                      <StatusControl
-                        value={mark}
-                        onChange={(v) => onMark(o.key, v)}
-                        label={`${course?.name ?? "Class"} at ${o.start}`}
-                        planned={future}
-                      />
-                      {future && mark && mark !== "cancelled" && (
-                        <p className="mt-2 font-sans text-[0.58rem] uppercase tracking-[0.2em] text-ivory-500">
-                          Planned — counts once the day has passed
-                        </p>
-                      )}
+                    <div className="mt-3">
+                      <StatusControl value={mark} onChange={(v) => onMark(o.key, v)} label={`${course?.name ?? "Class"} at ${o.start}`} planned={future} />
+                      {future && mark && mark !== "cancelled" && <p className="mt-2 text-sm text-slate-500">Planned. It counts once the day is over.</p>}
                       {prediction && (
-                        <dl className="mt-4 grid grid-cols-3 gap-3 border-t border-line pt-4">
+                        <dl className="mt-3 grid grid-cols-3 gap-2 text-center">
                           <Prediction label="Now" value={prediction.current} />
-                          <Prediction label="If you attend" value={prediction.ifAttend} tone="up" />
+                          <Prediction label="If you go" value={prediction.ifAttend} tone="up" />
                           <Prediction label="If you miss" value={prediction.ifMiss} tone="down" />
                         </dl>
                       )}
@@ -166,23 +146,22 @@ export function DayDetail({ day, today, trackFrom, coveredByCheckpoint, courses,
         )}
 
         {!future && !covered && unmarked.length > 1 && (
-          <div className="mt-6 flex flex-wrap gap-3">
-            <button type="button" className="btn-luxe py-3" onClick={() => onMarkAll(unmarked, "present")}>
-              Mark the rest present
-            </button>
-          </div>
+          <button type="button" className="btn-solid mt-2 w-full" onClick={() => onMarkAll(unmarked, "present")}>
+            Mark all remaining as present
+          </button>
         )}
-      </motion.section>
+      </div>
+    </section>
   );
 }
 
 function Prediction({ label, value, tone }: { label: string; value: number | null; tone?: "up" | "down" }) {
   return (
-    <div>
-      <dt className="font-sans text-[0.52rem] uppercase tracking-[0.2em] text-ivory-500">{label}</dt>
-      <dd className={cn("mt-1 font-display text-2xl tabular", tone === "up" ? "text-bronze-300" : tone === "down" ? "text-ivory-300" : "text-ivory")}>
+    <div className={cn("rounded-xl px-2 py-2", tone === "up" ? "bg-emerald-50" : tone === "down" ? "bg-rose-50" : "bg-slate-50")}>
+      <dt className="text-xs font-semibold text-slate-500">{label}</dt>
+      <dd className={cn("text-xl font-bold tabular", tone === "up" ? "text-emerald-600" : tone === "down" ? "text-rose-600" : "text-slate-900")}>
         {formatPercent(value)}
-        {value != null && <span className="text-sm text-ivory-500">%</span>}
+        {value != null && <span className="text-sm">%</span>}
       </dd>
     </div>
   );

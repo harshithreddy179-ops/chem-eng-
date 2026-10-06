@@ -29,7 +29,7 @@ export default async function AdminChaptersPage({ searchParams }: { searchParams
       <FilterBar action="/admin/chapters" sections={sections} subjects={subjects} values={sp} />
       <AdminTable
         columns={[{ label: "Chapter" }, { label: "Section" }, { label: "Subject" }, { label: "Order", className: "w-16" }, { label: "Status" }, { label: "", className: "w-24 text-right" }]}
-        empty={<p className="border-t border-line py-10 font-display text-xl italic text-ivory-500">No chapters match. Add one to begin.</p>}
+        empty={<p className="border-t border-line py-10 font-display text-xl text-ivory-500">No chapters match. Add one to begin.</p>}
         rows={chapters.map((c) => ({
           key: c.id,
           cells: [

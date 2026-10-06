@@ -1,6 +1,5 @@
 "use client";
 
-import { motion, useReducedMotion } from "framer-motion";
 import { useProgress } from "@/hooks/use-progress";
 import { cn } from "@/lib/utils";
 
@@ -9,51 +8,40 @@ interface ProgressBarProps {
   label?: string;
   size?: "sm" | "lg";
   className?: string;
-  /** Show "x / y completed" under the bar. */
+  /** Show "x of y done" under the bar. */
   showCount?: boolean;
+  /** Tailwind bg class for the filled part. */
+  fill?: string;
 }
 
-/** Hairline progress bar with an oversized serif percentage. */
-export function ProgressBar({ keys, label = "Your progress", size = "lg", className, showCount = true }: ProgressBarProps) {
+/** Rounded progress bar with a percentage. */
+export function ProgressBar({ keys, label = "Your progress", size = "lg", className, showCount = true, fill = "bg-brand-600" }: ProgressBarProps) {
   const { done, total, percent, hydrated } = useProgress(keys);
-  const reduce = useReducedMotion();
   const empty = total === 0;
+  const shown = hydrated ? percent : 0;
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex items-end justify-between gap-6">
-        <span className="eyebrow">{label}</span>
-        <span
-          className={cn(
-            "font-display font-light tabular leading-none",
-            size === "lg" ? "text-6xl md:text-7xl" : "text-3xl",
-          )}
-          aria-hidden
-        >
-          {empty ? "—" : hydrated ? percent : "·"}
-          {!empty && <span className="ml-1 align-top text-[0.4em] text-ivory-300">%</span>}
+      <div className="flex items-end justify-between gap-4">
+        <span className={cn("font-semibold text-slate-700", size === "lg" ? "text-[15px]" : "text-sm")}>{label}</span>
+        <span className={cn("font-bold tabular text-slate-900", size === "lg" ? "text-3xl" : "text-base")} aria-hidden>
+          {empty ? "–" : `${shown}%`}
         </span>
       </div>
       <div
-        className={cn("relative mt-5 w-full bg-ivory/10", size === "lg" ? "h-px" : "h-px")}
+        className={cn("mt-2 w-full overflow-hidden rounded-full bg-slate-100", size === "lg" ? "h-3" : "h-2")}
         role="progressbar"
         aria-label={label}
         aria-valuemin={0}
         aria-valuemax={100}
         aria-valuenow={percent}
-        aria-valuetext={empty ? "Nothing to track yet" : `${percent}% — ${done} of ${total} completed`}
+        aria-valuetext={empty ? "Nothing to track yet" : `${percent}%: ${done} of ${total} done`}
       >
-        <motion.div
-          className="absolute inset-y-0 left-0 bg-bronze"
-          style={{ height: size === "lg" ? 2 : 1, top: size === "lg" ? -0.5 : 0 }}
-          initial={false}
-          animate={{ width: `${percent}%` }}
-          transition={{ duration: reduce ? 0 : 1.4, ease: [0.22, 1, 0.36, 1] }}
-        />
+        <div className={cn("h-full rounded-full transition-[width] duration-700 ease-out", fill)} style={{ width: `${shown}%` }} />
       </div>
       {showCount && (
-        <p className="mt-3 font-sans text-xs uppercase tracking-[0.2em] text-ivory-400 tabular">
-          {empty ? "Nothing to track yet" : `${hydrated ? done : 0} / ${total} completed`}
+        <p className="mt-2 text-sm text-slate-500 tabular">
+          {empty ? "Nothing to track yet" : `${hydrated ? done : 0} of ${total} done`}
         </p>
       )}
     </div>

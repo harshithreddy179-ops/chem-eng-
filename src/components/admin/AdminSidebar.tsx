@@ -45,14 +45,14 @@ export function AdminSidebar({ email }: { email: string }) {
         })}
       </ul>
       <div className="mt-auto space-y-4 border-t border-line pt-6">
-        <Link href="/" target="_blank" className="flex items-center gap-3 px-4 font-sans text-[0.65rem] uppercase tracking-[0.2em] text-ivory-400 hover:text-ivory">
+        <Link href="/" target="_blank" className="flex items-center gap-3 px-4 font-sans text-sm text-ivory-400 hover:text-ivory">
           <ExternalLink className="h-3.5 w-3.5" strokeWidth={1.25} aria-hidden /> View public site
         </Link>
         <p className="truncate px-4 font-sans text-xs text-ivory-500" title={email}>
           {email}
         </p>
         <form action={signOut}>
-          <button type="submit" className="flex items-center gap-3 px-4 font-sans text-[0.65rem] uppercase tracking-[0.2em] text-ivory-400 hover:text-bronze-300">
+          <button type="submit" className="flex items-center gap-3 px-4 font-sans text-sm text-ivory-400 hover:text-bronze-300">
             <LogOut className="h-3.5 w-3.5" strokeWidth={1.25} aria-hidden /> Sign out
           </button>
         </form>
@@ -63,7 +63,7 @@ export function AdminSidebar({ email }: { email: string }) {
   return (
     <>
       <div className="sticky top-0 z-30 flex items-center justify-between border-b border-line bg-ink/90 px-5 py-4 backdrop-blur lg:hidden">
-        <Link href="/admin" className="font-display text-lg uppercase tracking-[0.14em]">
+        <Link href="/admin" className="font-display text-lg">
           Archive <span className="text-bronze">Admin</span>
         </Link>
         <button type="button" onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="admin-nav" aria-label="Toggle admin menu" className="p-2">
@@ -77,9 +77,9 @@ export function AdminSidebar({ email }: { email: string }) {
       )}
       <aside className="sticky top-0 hidden h-dvh w-64 shrink-0 flex-col border-r border-line px-3 py-8 lg:flex">
         <Link href="/admin" className="mb-10 block px-4">
-          <span className="block font-sans text-[0.55rem] uppercase tracking-[0.35em] text-ivory-500">The Chemical Archive</span>
-          <span className="mt-1 block font-display text-2xl uppercase tracking-[0.08em]">
-            Admin <span className="italic text-bronze">Portal</span>
+          <span className="block font-sans text-sm text-ivory-500">The Chemical Archive</span>
+          <span className="mt-1 block font-display text-2xl">
+            Admin <span className="text-bronze">Portal</span>
           </span>
         </Link>
         {nav}

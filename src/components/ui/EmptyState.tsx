@@ -1,48 +1,33 @@
+import { Inbox } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EmptyStateProps {
   title: string;
   message: string;
+  /** Kept for older call sites; not shown. */
   index?: string;
   className?: string;
   compact?: boolean;
   children?: React.ReactNode;
 }
 
-/** A considered "nothing here yet" — architectural, never apologetic. */
-export function EmptyState({ title, message, index = "—", className, compact, children }: EmptyStateProps) {
+/** Friendly "nothing here yet" box. */
+export function EmptyState({ title, message, className, compact, children }: EmptyStateProps) {
   return (
     <div
       className={cn(
-        "relative overflow-hidden border border-line",
-        compact ? "px-6 py-10 md:px-8" : "px-6 py-20 md:px-14 md:py-28",
+        "flex flex-col items-center rounded-2xl border border-dashed border-slate-300 bg-slate-50/60 text-center",
+        compact ? "px-6 py-8" : "px-6 py-14",
         className,
       )}
       role="status"
     >
-      {/* drafting marks */}
-      <span aria-hidden className="absolute left-0 top-0 h-4 w-4 border-l border-t border-bronze/60" />
-      <span aria-hidden className="absolute bottom-0 right-0 h-4 w-4 border-b border-r border-bronze/60" />
-      <svg aria-hidden className="pointer-events-none absolute -right-10 -top-10 h-64 w-64 text-ivory/[0.05]" viewBox="0 0 200 200">
-        {Array.from({ length: 6 }, (_, i) => (
-          <circle key={i} cx="100" cy="100" r={20 + i * 16} fill="none" stroke="currentColor" />
-        ))}
-      </svg>
-      <div className="relative max-w-xl">
-        <span className="eyebrow tabular text-bronze">{index}</span>
-        <h3
-          className={cn(
-            "mt-5 font-display font-light uppercase leading-[0.95] tracking-[-0.01em]",
-            compact ? "text-2xl md:text-3xl" : "text-4xl md:text-6xl",
-          )}
-        >
-          {title}
-        </h3>
-        <p className={cn("mt-5 font-display italic text-ivory-300", compact ? "text-lg" : "text-xl md:text-2xl")}>
-          {message}
-        </p>
-        {children && <div className="mt-8">{children}</div>}
-      </div>
+      <span className="grid h-12 w-12 place-items-center rounded-full bg-white text-slate-400 shadow-sm">
+        <Inbox className="h-6 w-6" />
+      </span>
+      <h3 className={cn("mt-4 font-bold text-slate-800", compact ? "text-lg" : "text-xl")}>{title}</h3>
+      <p className="mt-1 max-w-md text-[15px] text-slate-500">{message}</p>
+      {children && <div className="mt-5">{children}</div>}
     </div>
   );
 }
