@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import { BookOpen, FileQuestion, FolderTree, LayoutDashboard, Layers, ListChecks, LogOut, Menu, X, ExternalLink } from "lucide-react";
+import { BookOpen, CalendarCheck, FileQuestion, FolderTree, LayoutDashboard, Layers, ListChecks, LogOut, Menu, X, ExternalLink } from "lucide-react";
 import { signOut } from "@/actions/auth";
 import { cn } from "@/lib/utils";
 
@@ -14,6 +14,7 @@ const LINKS = [
   { href: "/admin/pyqs", label: "PYQs", icon: FileQuestion },
   { href: "/admin/subjects", label: "Subjects", icon: Layers },
   { href: "/admin/sections", label: "Sections", icon: FolderTree },
+  { href: "/admin/attendance", label: "Attendance", icon: CalendarCheck },
 ];
 
 export function AdminSidebar({ email }: { email: string }) {

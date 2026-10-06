@@ -29,6 +29,11 @@ const config: Config = {
           500: "#957752",
           600: "#76603f",
         },
+        garnet: {
+          DEFAULT: "#b4665c",
+          300: "#cf9088",
+          700: "#5a2f2a",
+        },
         line: "rgb(236 230 218 / 0.12)",
       },
       fontFamily: {

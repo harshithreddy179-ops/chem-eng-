@@ -22,7 +22,7 @@ const PILLARS = [
     numeral: "III",
     title: "The Tools",
     line: "Simple tools for better study sessions.",
-    body: "Beginning with a focus timer built for long, deliberate sessions. More instruments will follow.",
+    body: "A focus timer, an attendance calendar that knows your timetable, and a scientific calculator on every page.",
     href: "/tools",
     cta: "See the tools",
   },

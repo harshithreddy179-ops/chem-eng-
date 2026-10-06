@@ -4,10 +4,11 @@ import { SectionHeading } from "@/components/ui/SectionHeading";
 import { Reveal } from "@/components/motion/Reveal";
 import { TOOLS } from "@/lib/tools";
 import { pad } from "@/lib/utils";
+import { ToolGlyph } from "@/components/tools/ToolGlyph";
 
 export const metadata: Metadata = {
   title: "Tools",
-  description: "Simple instruments for better study sessions — beginning with a Pomodoro focus timer.",
+  description: "Simple instruments for better study sessions — a Pomodoro timer, an attendance calendar and a scientific calculator.",
   alternates: { canonical: "/tools" },
 };
 
@@ -28,16 +29,14 @@ export default function ToolsPage() {
                 <h2 className="font-display text-display-md font-light uppercase transition-transform duration-1000 ease-luxe group-hover:translate-x-3">
                   {tool.name}
                 </h2>
-                <p className="mt-4 max-w-md font-display text-xl italic text-ivory-300">{tool.summary}</p>
+                <p className="mt-4 font-display text-2xl italic text-ivory-200">&ldquo;{tool.tagline}&rdquo;</p>
+                <p className="mt-3 max-w-md font-sans text-sm leading-relaxed text-ivory-400">{tool.summary}</p>
               </div>
-              <div aria-hidden className="relative hidden md:col-span-3 md:col-start-9 md:block">
-                <svg viewBox="0 0 100 100" className="mx-auto h-36 w-36 -rotate-90 text-ivory/20 transition-colors duration-1000 group-hover:text-bronze/70">
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="currentColor" strokeWidth="0.5" />
-                  <circle cx="50" cy="50" r="46" fill="none" stroke="#b39469" strokeWidth="0.8" strokeDasharray="289" strokeDashoffset="72" className="transition-[stroke-dashoffset] duration-[1600ms] ease-luxe group-hover:[stroke-dashoffset:0]" />
-                </svg>
+              <div aria-hidden className="relative hidden h-36 w-36 justify-self-center text-ivory/25 transition-colors duration-1000 group-hover:text-ivory/50 md:col-span-3 md:col-start-9 md:block">
+                <ToolGlyph slug={tool.slug} />
               </div>
               <span className="relative flex items-center gap-3 font-sans text-[0.65rem] uppercase tracking-luxe text-ivory-200 transition-colors duration-500 group-hover:text-bronze-300 md:col-span-2 md:justify-end">
-                Open <span aria-hidden className="transition-transform duration-700 group-hover:translate-x-1.5">→</span>
+                Open tool <span aria-hidden className="transition-transform duration-700 group-hover:translate-x-1.5">→</span>
               </span>
             </Link>
           </Reveal>

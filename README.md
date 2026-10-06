@@ -21,6 +21,11 @@ An academic resource and PYQ platform for Chemical Engineering students at **MNN
 9. [Adding Google Drive resources](#9-adding-google-drive-resources)
 10. [Adding PYQs](#10-adding-pyqs)
 11. [Deploying to your repo and Vercel](#11-deploying-to-your-repo-and-vercel)
+12. [Attendance: academic calendar & semester](#12-attendance-academic-calendar--semester)
+13. [Attendance: weekly timetable](#13-attendance-weekly-timetable)
+14. [Attendance: holidays, special classes & date changes](#14-attendance-holidays-special-classes--date-changes)
+15. [Using attendance (students)](#15-using-attendance-students)
+16. [Scientific calculator](#16-scientific-calculator)
 
 Also covered: [how it works](#how-it-works), [project structure](#project-structure) and [security](#security).
 
@@ -93,6 +98,8 @@ Apply it in one of two ways:
   ```
 
 The script is idempotent, so running it twice is harmless.
+
+**Then run the attendance migration** the same way: [`supabase/migrations/20261006000000_attendance.sql`](supabase/migrations/20261006000000_attendance.sql) (attendance tables and their RLS). The CLI's `db push` applies both files in order.
 
 ## 5. Creating the first admin
 
@@ -222,6 +229,98 @@ git push origin main
 - [ ] `/tools/pomodoro` counts down
 - [ ] `/sitemap.xml` and `/robots.txt` resolve
 
+
+## 12. Attendance: academic calendar & semester
+
+The attendance tool (`/tools/attendance`) is built from data you enter in **Admin → Attendance**. Nothing about your timetable is hard-coded.
+
+**Fastest start (the current semester).** The odd semester 2026–27 for Chemical Engineering, Section L, is already transcribed from the official timetable and academic calendar in
+[`supabase/seed/attendance_2026_27_odd_semester_section_l.sql`](supabase/seed/attendance_2026_27_odd_semester_section_l.sql).
+Paste it into the Supabase SQL Editor and run it. It is safe to re-run: it replaces only that one semester. It contains:
+
+- **Dates:** classes from Mon 20 Jul 2026 to Sat 14 Nov 2026. End of Classes is Fri 13 Nov; Sat 14 Nov is marked "First Year Classes".
+- **Courses:** the 7 courses on the timetable, linked to the archive subjects where one exists. Engineering Graphics (MEN11601) has no archive subject.
+- **Weekly timetable:** every cell of the timetable, one row per hour, with rooms. Engineering Graphics labs are split into batches **L1** (Tue) and **L2** (Thu).
+- **Holidays:** the red dates in the calendar (Independence Day, Id-e-Milad, Janmashtami, Gandhi Jayanti, Dussehra, Diwali) plus the mid-semester break, 17–25 Oct.
+- **Working Saturdays:** the 11 Saturdays marked "First Year Classes". These are added as working days with the timetable *to be announced*, because the calendar doesn't say which weekday's timetable runs. Set it under **Date changes** once it's announced.
+- **Attendance notice:** the **1st Short Attendance Notification** (figures as of 8 Oct; tracking resumes Mon 26 Oct, after the mid-sem break).
+
+**Setting up a new semester by hand:** **Admin → Attendance → + New semester**.
+
+| Field | Notes |
+|---|---|
+| Semester name, Academic year | e.g. `Semester 2`, `2026–27` |
+| Programme / section | e.g. `Chemical Engineering · Section L`; shown to students |
+| First / last day of classes | from the academic calendar ("Start of Classes" / "End of Classes") |
+| Archive section | links the timetable to an archive section (optional) |
+| Lab batches | comma-separated, e.g. `L1, L2`; students choose theirs |
+| Default target % | `85`; students can change their own |
+| Published | unpublished semesters are hidden from students |
+
+Then fill the tabs in order: **Courses → Weekly timetable → Holidays → Date changes → Attendance notices**.
+
+## 13. Attendance: weekly timetable
+
+1. **Courses tab:** add each course with its code and name, e.g. `MAN11101 · Mathematics 1`. Attendance is counted per course, so lectures, tutorials and labs of the same code add up together.
+2. **Weekly timetable tab:** under each weekday click **+ Add class** and enter the course, start time, end time, type (Lecture / Lab / Tutorial / Other), room, faculty and batch. Leave **batch** empty for classes the whole section attends.
+
+A 2-hour lab shown as two cells on the timetable can be entered as two 1-hour rows (each counts as one class) or as one 2-hour row (counts once). Use whichever matches how your department counts it.
+
+## 14. Attendance: holidays, special classes & date changes
+
+- **Holidays tab:** date and name, e.g. 26 Jan 2027 · Republic Day. The date turns red in the calendar and its timetable classes disappear, so they are never counted.
+- **Special classes tab:** a one-off class on a specific date (an extra lecture, a Saturday class, even a class on a holiday). It is added to that day's timetable.
+- **Date changes tab:** these override the weekly timetable for one date.
+  - **Cancel a class:** pick the date and the timetable class. Students see "Cancelled by the department" and it never counts.
+  - **Reschedule a class:** pick the date, the class and the new date. The new times are optional. The class disappears from the old date and appears on the new one.
+  - **Whole day follows another timetable:** e.g. a working Saturday that runs Monday's timetable. Leave the weekday empty while it's still unannounced.
+- **Attendance notices tab:** official notices students can start from, e.g. the 2nd Short Attendance Notification. Enter the date the figures are as of, and the first class day counted after it.
+
+Every change is live on `/tools/attendance` as soon as you save.
+
+## 15. Using attendance (students)
+
+1. Open **Tools → Attendance**.
+2. **Choose where to start:**
+   - **From an attendance notice (recommended):** copy each subject's *attended* and *held* figures from the notice. The calendar takes over from the resume date, e.g. 26 Oct, after the mid-sem break.
+   - **From the first day:** mark every class since the semester began.
+3. Choose your **lab batch** (L1 / L2) so only your labs appear.
+4. Click any date and mark each class **Present**, **Absent** or **Cancelled**. Click the active option again to clear it. "Mark the rest present" fills a whole day.
+5. The overall figure, each subject's percentage, how many classes you can still miss (or must attend), and the history update instantly.
+
+**Counting rules** (used for every number on the page):
+
+| Mark | Held | Attended |
+|---|---|---|
+| Present | +1 | +1 |
+| Absent | +1 | — |
+| Cancelled (by you or the department) | — | — |
+| Holidays, days with no classes, unmarked or upcoming classes | — | — |
+
+The percentage is **attended ÷ held × 100**, computed from totals. It is never an average of subject percentages. Notice figures are added to the totals.
+
+On an upcoming date, each class shows **"If you attend / If you miss"** projections. You can plan-mark future classes; they're labelled *Planned* and only count once the day has passed. Marks are saved privately in the browser (localStorage) and survive refreshes. The storage sits behind a small adapter (`src/lib/attendance/store.ts`), so syncing marks to Supabase for signed-in students can be added later.
+
+## 16. Scientific calculator
+
+Open it at **Tools → Scientific Calculator** (`/tools/calculator`), or from the **∑ CALC** button in the corner of every page. That opens the same calculator as a floating panel (a bottom sheet on phones) without leaving the page.
+
+- **Functions:** + − × ÷, %, brackets, π, e, x², xʸ, √x, log, ln, eˣ, 10ˣ, sin / cos / tan and their inverses, n!, |x|, 1/x, **EXP** (scientific notation, e.g. `1.23E-6`) and **Ans**.
+- **DEG / RAD** toggle. The current mode is always shown in the display.
+- **Implicit multiplication** (`2π`, `3(4)`, `2sin(30)`), and brackets left open close themselves.
+- **Results:** very large or small results display as `1.23 × 10⁻⁶`.
+- **Errors:** division by zero, log of ≤ 0, square roots of negatives, invalid factorials, out-of-range inverse trig and malformed input show a short message instead of crashing.
+- **History:** the last 50 calculations, kept on the device. Tap an expression to edit it again, tap a result to insert it, or **Clear history**.
+- **Keyboard:** type normally; **Enter** or **=** calculates, **Backspace** deletes, **Esc** closes the floating panel (or clears on the calculator page). After a result, typing an operator continues from **Ans**.
+
+The calculator parses expressions itself: no `eval`, no `Function()`.
+
+### Tests
+
+```bash
+npm test   # attendance engine (holidays, cancellations, reschedules, batches, baselines, 85% maths) + calculator
+```
+
 ---
 
 ## How it works
@@ -279,18 +378,24 @@ src/
     home/         Hero, Purpose, Pillars, SubjectList
     archive/      AcademicSectionCard, SubjectIndex, ResourceList, ResourceItem, ChapterChecklist
     pyq/          PYQCard, QuestionViewer, SolutionReveal, PracticeSession, PyqFilters, MathText
-    tools/        PomodoroTimer
-    admin/        AdminSidebar, AdminTable, AdminForm, Resource/Chapter/Pyq forms, TaxonomyManager
+    tools/        PomodoroTimer, ToolGlyph
+    attendance/   AttendanceApp, AttendanceCalendar, DayDetail, StatusControl, StartSetup, Summary, History
+    calculator/   Calculator, FloatingCalculator
+    admin/        AdminSidebar, AdminTable, AdminForm, Resource/Chapter/Pyq forms, TaxonomyManager,
+                  attendance/ (RecordEditor, field definitions, semester settings)
     search/       SearchCommand
     ui/           SectionHeading, EmptyState, ProgressBar, ProgressRing, CompletionCheckbox, Breadcrumbs
     visual/       HeroArchitecture (SVG), SubjectMotif
     motion/       Reveal, TextReveal
   hooks/          use-progress, use-admin-form, use-is-admin, use-hotkey
-  lib/            supabase clients, data access (public and admin), auth, progress store, constants
+  lib/            supabase clients, data access (public and admin), auth, progress store, constants,
+                  attendance/ (pure engine, dates, local store), calculator/ (parser + formatter)
   styles/         globals.css (design tokens, components)
   types/          Domain types
 supabase/
-  migrations/     Schema, RLS and seed configuration
+  migrations/     Schema, RLS and seed configuration (incl. attendance)
+  seed/           Real semester data (attendance) — run in the SQL editor
+tests/            node:test suites (npm test)
 ```
 
 ## Security
