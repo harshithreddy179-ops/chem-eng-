@@ -113,10 +113,7 @@ export function trackableKeys(
 ): ProgressKey[] {
   const match = (r: { section_id: string; subject_id: string }) =>
     (!scope.sectionId || r.section_id === scope.sectionId) && (!scope.subjectId || r.subject_id === scope.subjectId);
-  return [
-    ...index.chapters.filter(match).map((c) => `chapter:${c.id}` as ProgressKey),
-    ...index.resources.filter((r) => r.is_trackable && match(r)).map((r) => `resource:${r.id}` as ProgressKey),
-  ];
+  return index.resources.filter((r) => r.is_trackable && match(r)).map((r) => `resource:${r.id}` as ProgressKey);
 }
 
 export function resourceCount(index: ArchiveIndex, scope: { sectionId?: string; subjectId?: string } = {}) {
@@ -127,10 +124,32 @@ export function resourceCount(index: ArchiveIndex, scope: { sectionId?: string; 
 
 /* ─── Subject page ───────────────────────────────────────────────────────── */
 
+export type SubjectPyq = Pyq & { pyq_resources?: { resource_id: string }[] };
+
 export interface SubjectContent {
   chapters: Chapter[];
   resources: Resource[];
-  pyqs: Pyq[];
+  pyqs: SubjectPyq[];
+}
+
+/** PYQs per chapter per year. A question belongs to its own chapter, or to
+    the chapters of the notes it links to as related material. */
+export function chapterPyqCounts(content: SubjectContent): Record<string, Record<number, number>> {
+  const chapterOf = new Map(content.resources.map((r) => [r.id, r.chapter_id]));
+  const out: Record<string, Record<number, number>> = {};
+  for (const q of content.pyqs) {
+    const chapters = new Set<string>();
+    if (q.chapter_id) chapters.add(q.chapter_id);
+    for (const link of q.pyq_resources ?? []) {
+      const c = chapterOf.get(link.resource_id);
+      if (c) chapters.add(c);
+    }
+    for (const c of chapters) {
+      out[c] ??= {};
+      out[c][q.year] = (out[c][q.year] ?? 0) + 1;
+    }
+  }
+  return out;
 }
 
 export async function getSubjectContent(sectionId: string, subjectId: string): Promise<SubjectContent> {
@@ -155,7 +174,7 @@ export async function getSubjectContent(sectionId: string, subjectId: string): P
       .order("created_at"),
     db
       .from("pyqs")
-      .select("*")
+      .select("*, pyq_resources(resource_id)")
       .eq("section_id", sectionId)
       .eq("subject_id", subjectId)
       .eq("is_published", true)
@@ -168,7 +187,7 @@ export async function getSubjectContent(sectionId: string, subjectId: string): P
   return {
     chapters: (ch.data ?? []) as Chapter[],
     resources: (rs.data ?? []) as Resource[],
-    pyqs: (pq.data ?? []) as Pyq[],
+    pyqs: (pq.data ?? []) as SubjectPyq[],
   };
 }
 

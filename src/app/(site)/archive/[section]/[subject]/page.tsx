@@ -9,7 +9,7 @@ import { ResourceList } from "@/components/archive/ResourceList";
 import { ChapterChecklist } from "@/components/archive/ChapterChecklist";
 import { PYQCard } from "@/components/pyq/PYQCard";
 import { subjectTheme } from "@/lib/palette";
-import { getSectionBySlug, getSections, getSubjectBySlug, getSubjectContent, getSubjects } from "@/lib/data/public";
+import { chapterPyqCounts, getSectionBySlug, getSections, getSubjectBySlug, getSubjectContent, getSubjects } from "@/lib/data/public";
 import type { ProgressKey } from "@/types";
 import { cn } from "@/lib/utils";
 
@@ -38,16 +38,14 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
   const [section, subject, subjects] = await Promise.all([getSectionBySlug(sectionSlug), getSubjectBySlug(subjectSlug), getSubjects()]);
   if (!section || !subject) notFound();
 
-  const { chapters, resources, pyqs } = await getSubjectContent(section.id, subject.id);
+  const content = await getSubjectContent(section.id, subject.id);
+  const { chapters, resources, pyqs } = content;
   const lectures = resources.filter((r) => r.category === "lecture");
   const pyqResources = resources.filter((r) => r.category === "pyq");
   const others = resources.filter((r) => r.category === "other");
   const t = subjectTheme(subject.slug);
 
-  const keys: ProgressKey[] = [
-    ...chapters.map((c) => `chapter:${c.id}` as const),
-    ...resources.filter((r) => r.is_trackable).map((r) => `resource:${r.id}` as const),
-  ];
+  const keys: ProgressKey[] = resources.filter((r) => r.is_trackable).map((r) => `resource:${r.id}` as const);
 
   const position = subjects.findIndex((s) => s.id === subject.id);
   const next = subjects[(position + 1) % subjects.length];
@@ -98,9 +96,9 @@ export default async function SubjectPage({ params }: { params: Promise<Params> 
               <h2 id="chapters-title" className="flex items-center gap-2.5 text-xl font-bold text-slate-900">
                 <ListChecks className={cn("h-6 w-6", t.text)} /> Chapters
               </h2>
-              <span className="text-sm text-slate-500">Tick a chapter when you finish it</span>
+              <span className="text-sm text-slate-500">PYQs asked from each chapter</span>
             </div>
-            <ChapterChecklist chapters={chapters} resources={resources} accent={cn(t.soft, t.text)} />
+            <ChapterChecklist chapters={chapters} resources={resources} pyqCounts={chapterPyqCounts(content)} examLabel={section.name} />
           </section>
         )}
 
