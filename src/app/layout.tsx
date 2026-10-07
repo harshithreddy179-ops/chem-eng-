@@ -12,6 +12,7 @@ import "katex/dist/katex.min.css";
 import "@/styles/globals.css";
 import { SITE_DESCRIPTION, SITE_NAME, INSTITUTION } from "@/lib/constants";
 import { siteUrl } from "@/lib/utils";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -58,7 +59,10 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-dvh overflow-x-hidden">{children}</body>
+      <body className="min-h-dvh overflow-x-hidden">
+        {children}
+        <Analytics />
+      </body>
     </html>
   );
 }
