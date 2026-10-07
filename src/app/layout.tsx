@@ -10,6 +10,8 @@ import "@fontsource/cormorant-garamond/latin-700-italic.css";
 import "@fontsource-variable/inter";
 import "katex/dist/katex.min.css";
 import "@/styles/globals.css";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { SITE_DESCRIPTION, SITE_NAME, INSTITUTION } from "@/lib/constants";
 import { siteUrl } from "@/lib/utils";
 
@@ -58,7 +60,11 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-dvh overflow-x-hidden">{children}</body>
+      <body className="min-h-dvh overflow-x-hidden">
+        {children}
+        <Analytics />
+        <SpeedInsights />
+      </body>
     </html>
   );
 }
