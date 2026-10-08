@@ -1,7 +1,5 @@
 "use client";
 
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useTransition } from "react";
 import { LayoutGrid, X } from "lucide-react";
 import { DIFFICULTIES } from "@/lib/constants";
 import { SubjectIcon } from "@/components/ui/SubjectIcon";
@@ -18,18 +16,20 @@ export interface FilterOptions {
 
 const FIELDS = ["section", "year", "exam", "topic", "difficulty"] as const;
 
-/** Filters live in the URL, so any filtered view can be shared. */
-export function PyqFilters({ options }: { options: FilterOptions }) {
-  const router = useRouter();
-  const pathname = usePathname();
-  const params = useSearchParams();
-  const [pending, startTransition] = useTransition();
+type Params = { get(name: string): string | null; toString(): string };
 
+/** Filters live in the URL (so a filtered view can be shared), but changing
+    them only updates the address bar — no trip to the server. */
+export function PyqFilters({ options, params }: { options: FilterOptions; params: Params }) {
+  function navigate(query: string) {
+    const url = `${window.location.pathname}${query ? `?${query}` : ""}`;
+    window.history.pushState(null, "", url);
+  }
   function update(key: string, value: string) {
     const next = new URLSearchParams(params.toString());
     if (value) next.set(key, value);
     else next.delete(key);
-    startTransition(() => router.push(`${pathname}?${next.toString()}`, { scroll: false }));
+    navigate(next.toString());
   }
 
   const activeSubject = params.get("subject") ?? "";
@@ -45,7 +45,7 @@ export function PyqFilters({ options }: { options: FilterOptions }) {
   const fields = FIELDS.filter((f) => f !== "topic" || choices.topic.items.length > 0);
 
   return (
-    <div className={cn("transition-opacity", pending && "opacity-60")} aria-busy={pending}>
+    <div>
       <p className="mb-2.5 text-sm font-semibold text-slate-700">Subject</p>
       <div className="-mx-4 overflow-x-auto px-4 pb-1 scrollbar-none sm:mx-0 sm:px-0">
         <ul className="flex min-w-max gap-2 sm:min-w-0 sm:flex-wrap" role="tablist" aria-label="Subject">
@@ -106,7 +106,7 @@ export function PyqFilters({ options }: { options: FilterOptions }) {
       {hasFilters && (
         <button
           type="button"
-          onClick={() => startTransition(() => router.push(pathname, { scroll: false }))}
+          onClick={() => navigate("")}
           className="mt-4 inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3.5 py-1.5 text-sm font-semibold text-slate-700 hover:bg-slate-200"
         >
           <X className="h-4 w-4" /> Clear filters

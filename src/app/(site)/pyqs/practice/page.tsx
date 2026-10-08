@@ -35,10 +35,14 @@ export default async function PracticePage({ searchParams }: { searchParams: Sea
   const count = Math.min(Math.max(Number(one(sp.count)) || 10, 1), 50);
   const started = one(sp.start) === "1";
 
-  const [subjects, sections, facets] = await Promise.all([getSubjects(), getSections(), getPyqFacets()]);
+  const [subjects, sections, facets, pool] = await Promise.all([
+    getSubjects(),
+    getSections(),
+    getPyqFacets(),
+    started ? getPyqs(filters, 500) : Promise.resolve([]),
+  ]);
 
   if (started) {
-    const pool = await getPyqs(filters, 500);
     const picked = shuffle(pool).slice(0, count);
     const restart = `/pyqs/practice?${new URLSearchParams(
       Object.entries({ ...filters, year: filters.year?.toString(), count: String(count) }).filter((e): e is [string, string] => Boolean(e[1])),

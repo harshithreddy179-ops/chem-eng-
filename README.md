@@ -408,3 +408,10 @@ tests/            node:test suites (npm test)
 
 - Semantic landmarks, a skip link, visible focus rings, ARIA on custom controls (checkboxes, progress, combobox search, timer), keyboard support throughout, and every animation respects `prefers-reduced-motion`.
 - Server Components by default. The heavy pieces are rendered on the server: KaTeX ships no JavaScript to the client, and the hero visual is inline SVG with no image downloads. Search loads lazily on first open, and fonts are self-hosted (Latin subsets only).
+
+## Performance notes
+
+- `vercel.json` pins server functions to **bom1 (Mumbai)**, the same region as the Supabase project (ap-south-1). Keep these together; a far-away function region adds a round trip across the world to every database query.
+- Every public page is pre-built and refreshed in the background every 5 minutes (ISR), including each question page (`/pyqs/[id]`). Only `/pyqs/practice` (random sets) renders on request.
+- The PYQ list loads all questions once; subject/year/exam filters run in the browser and only update the URL, so filtering is instant and shareable.
+- `NavProgress` shows a thin bar at the top as soon as an internal link is clicked.

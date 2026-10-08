@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import type { Pyq } from "@/types";
-import { plainPreview } from "./MathText";
+import { plainPreview } from "@/lib/plain-preview";
 import { DIFFICULTY_STYLE } from "@/lib/palette";
 import { cn } from "@/lib/utils";
 

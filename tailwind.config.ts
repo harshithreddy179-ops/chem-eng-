@@ -82,6 +82,7 @@ const config: Config = {
         1200: "1200ms",
       },
       keyframes: {
+        "page-in": { from: { opacity: "0.6" }, to: { opacity: "1" } },
         "slow-drift": {
           "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
           "50%": { transform: "translate3d(0,-1.5%,0) scale(1.03)" },
@@ -95,6 +96,7 @@ const config: Config = {
         },
       },
       animation: {
+        "page-in": "page-in 160ms ease-out",
         "slow-drift": "slow-drift 24s ease-in-out infinite",
         grain: "grain 9s steps(6) infinite",
       },

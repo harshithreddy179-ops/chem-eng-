@@ -230,7 +230,7 @@ async function resolveFilterIds(filters: PyqFilters) {
   return { subjectId: subject?.id, sectionId: section?.id, invalid: Boolean((filters.subject && !subject) || (filters.section && !section)) };
 }
 
-export async function getPyqs(filters: PyqFilters = {}, limit = 300): Promise<PyqWithRelations[]> {
+export async function getPyqs(filters: PyqFilters = {}, limit = 2000): Promise<PyqWithRelations[]> {
   const db = getPublicClient();
   if (!db) return [];
   const { subjectId, sectionId, invalid } = await resolveFilterIds(filters);
@@ -253,6 +253,18 @@ export async function getPyqs(filters: PyqFilters = {}, limit = 300): Promise<Py
     return [];
   }
   return (data as RawPyq[]).map(shapePyq);
+}
+
+/** Ids of every published question, for pre-building question pages. */
+export async function getPublishedPyqIds(): Promise<string[]> {
+  const db = getPublicClient();
+  if (!db) return [];
+  const { data, error } = await db.from("pyqs").select("id").eq("is_published", true).limit(5000);
+  if (error) {
+    warn("pyq-ids", error);
+    return [];
+  }
+  return (data as { id: string }[]).map((r) => r.id);
 }
 
 export async function getPyqById(id: string): Promise<PyqWithRelations | null> {

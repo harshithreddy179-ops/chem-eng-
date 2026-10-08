@@ -6,11 +6,17 @@ import { Breadcrumbs } from "@/components/ui/Breadcrumbs";
 import { QuestionViewer } from "@/components/pyq/QuestionViewer";
 import { PyqNav } from "@/components/pyq/PyqNav";
 import { plainPreview } from "@/components/pyq/MathText";
-import { getPyqById, getPyqNeighbours } from "@/lib/data/public";
+import { getPublishedPyqIds, getPyqById, getPyqNeighbours } from "@/lib/data/public";
 
 export const revalidate = 300;
 
 type Params = { id: string };
+
+/** Pre-build every question page; new questions are built on first visit. */
+export async function generateStaticParams() {
+  const ids = await getPublishedPyqIds();
+  return ids.map((id) => ({ id }));
+}
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { id } = await params;
