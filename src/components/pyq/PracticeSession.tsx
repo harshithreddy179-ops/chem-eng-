@@ -102,8 +102,8 @@ export function PracticeSession({ items, restartHref }: { items: PracticeItem[];
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-12">
-      <div className="space-y-5 lg:col-span-8">
+    <div className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="min-w-0 space-y-5 lg:col-span-8">
         <div className="card flex items-center gap-4 p-4">
           <span className="text-[15px] font-bold text-slate-900" aria-live="polite">
             Question {index + 1} of {total}
@@ -113,7 +113,7 @@ export function PracticeSession({ items, restartHref }: { items: PracticeItem[];
           </div>
         </div>
 
-        <div key={item.id} className="space-y-5">
+        <div key={item.id} className="min-w-0 space-y-5">
           {item.statement}
           <SolutionReveal hasSolution={item.hasSolution} correctAnswer={item.correctAnswer} resetKey={item.id}>
             {item.solution}
@@ -159,7 +159,7 @@ export function PracticeSession({ items, restartHref }: { items: PracticeItem[];
         </div>
       </div>
 
-      <div className="space-y-5 lg:col-span-4">
+      <div className="min-w-0 space-y-5 lg:col-span-4">
         <div className="card p-4">
           <p className="text-[15px] font-bold text-slate-900">All questions</p>
           <ol className="mt-3 grid grid-cols-6 gap-2">

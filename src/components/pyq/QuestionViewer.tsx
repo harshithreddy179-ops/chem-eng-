@@ -13,8 +13,8 @@ export function QuestionStatement({ pyq, heading = "h1" }: { pyq: PyqWithRelatio
   const H = heading;
   const image = safeHttpsUrl(pyq.question_image_url);
   return (
-    <div className="card overflow-hidden">
-      <div className="flex flex-wrap items-center gap-3 border-b border-line bg-slate-50/70 px-5 py-4">
+    <div className="card min-w-0 overflow-hidden">
+      <div className="flex flex-wrap items-center gap-3 border-b border-line bg-slate-50/70 px-4 py-4 sm:px-5">
         <SubjectIcon slug={pyq.subject?.slug} size="sm" />
         <div className="min-w-0 flex-1">
           <p className="text-sm font-semibold text-slate-500">{pyq.subject?.name}</p>
@@ -28,7 +28,7 @@ export function QuestionStatement({ pyq, heading = "h1" }: { pyq: PyqWithRelatio
           {pyq.marks != null && pyq.marks > 0 && <span className="chip bg-amber-50 text-amber-700">{pyq.marks} marks</span>}
         </div>
       </div>
-      <div className="px-5 py-6 md:px-7 md:py-7">
+      <div className="min-w-0 px-4 py-5 sm:px-5 sm:py-6 md:px-7 md:py-7">
         {pyq.topic && <p className="mb-3 text-sm font-semibold text-brand-600">Topic: {pyq.topic}</p>}
         <MathText text={pyq.question} className="text-[1.08rem] md:text-[1.15rem]" />
         {image && (
@@ -52,15 +52,15 @@ export function QuestionStatement({ pyq, heading = "h1" }: { pyq: PyqWithRelatio
 
 export function QuestionViewer({ pyq, nav }: { pyq: PyqWithRelations; nav?: React.ReactNode }) {
   return (
-    <article className="grid gap-6 lg:grid-cols-12">
-      <div className="space-y-5 lg:col-span-8">
+    <article className="grid min-w-0 grid-cols-1 gap-6 lg:grid-cols-12">
+      <div className="min-w-0 space-y-5 lg:col-span-8">
         <QuestionStatement pyq={pyq} />
         <SolutionReveal hasSolution={Boolean(pyq.solution)} correctAnswer={pyq.correct_answer}>
           {pyq.solution && <MathText text={pyq.solution} />}
         </SolutionReveal>
         {nav}
       </div>
-      <div className="space-y-5 lg:col-span-4">
+      <div className="min-w-0 space-y-5 lg:col-span-4">
         <RelatedMaterial resources={pyq.related} subjectName={pyq.subject?.name} />
       </div>
     </article>

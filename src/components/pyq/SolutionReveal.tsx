@@ -30,7 +30,7 @@ export function SolutionReveal({ children, correctAnswer, hasSolution, resetKey,
   }
 
   return (
-    <div className={cn("overflow-hidden rounded-2xl border", open ? "border-emerald-200" : "border-slate-200", className)}>
+    <div className={cn("min-w-0 overflow-hidden rounded-2xl border", open ? "border-emerald-200" : "border-slate-200", className)}>
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
@@ -51,7 +51,7 @@ export function SolutionReveal({ children, correctAnswer, hasSolution, resetKey,
       </button>
 
       {open && (
-        <div id={id} role="region" aria-label="Solution" className="border-t border-emerald-100 bg-white px-5 py-6">
+        <div id={id} role="region" aria-label="Solution" className="min-w-0 border-t border-emerald-100 bg-white px-4 py-5 sm:px-5 sm:py-6">
           {correctAnswer && (
             <p className="mb-5 flex flex-wrap items-baseline gap-3">
               <span className="chip bg-emerald-100 text-emerald-700">Answer</span>

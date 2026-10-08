@@ -21,19 +21,27 @@ function renderMath(src: string, display: boolean) {
   });
 }
 
+const isDisplay = (p?: string) => Boolean(p && p.startsWith("$$") && p.endsWith("$$") && p.length > 4);
+
 function Line({ text }: { text: string }) {
   const parts = text.split(MATH);
   return (
     <>
       {parts.map((part, i) => {
         if (!part) return null;
+        // A bare line break next to display maths would add an empty line;
+        // the display block already starts on its own line.
+        if (!part.trim() && (isDisplay(parts[i - 1]) || isDisplay(parts[i + 1]))) return null;
         if (part.startsWith("$$") && part.endsWith("$$") && part.length > 4) {
           return <span key={i} dangerouslySetInnerHTML={{ __html: renderMath(part.slice(2, -2), true) }} />;
         }
         if (part.startsWith("$") && part.endsWith("$") && part.length > 2) {
           return <span key={i} dangerouslySetInnerHTML={{ __html: renderMath(part.slice(1, -1), false) }} />;
         }
-        const lines = part.split("\n");
+        let body = part;
+        if (isDisplay(parts[i + 1])) body = body.replace(/\n+$/, "");
+        if (isDisplay(parts[i - 1])) body = body.replace(/^\n+/, "");
+        const lines = body.split("\n");
         return (
           <Fragment key={i}>
             {lines.map((l, j) => (

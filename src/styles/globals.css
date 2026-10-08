@@ -15,6 +15,13 @@
     overflow-x: clip;
   }
 
+  /* Grid and flex children default to min-width:auto, so a long word or a
+     wide formula can push a card past a phone's edge. Let them shrink. */
+  .grid > *,
+  .flex > .min-w-0 {
+    min-width: 0;
+  }
+
   html {
     -webkit-text-size-adjust: 100%;
     text-rendering: optimizeLegibility;
@@ -116,13 +123,33 @@
 
   /* Rendered math / prose for questions and solutions */
   .prose-archive {
-    @apply font-sans text-[1.05rem] leading-[1.8] text-slate-800;
+    @apply min-w-0 max-w-full font-sans text-[1.05rem] leading-[1.8] text-slate-800;
+    overflow-wrap: anywhere;
   }
   .prose-archive p + p {
     @apply mt-4;
   }
+  /* Wide display maths scrolls sideways inside its own box on phones
+     instead of pushing the page wider than the screen. */
   .prose-archive .katex-display {
-    @apply my-5 overflow-x-auto overflow-y-hidden py-2;
+    @apply my-2 max-w-full overflow-x-auto overflow-y-hidden py-1.5;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+    /* Edge shadows that appear only when there is more to scroll. */
+    background:
+      linear-gradient(to right, #fff 30%, rgb(255 255 255 / 0)) left center / 24px 100% no-repeat local,
+      linear-gradient(to left, #fff 30%, rgb(255 255 255 / 0)) right center / 24px 100% no-repeat local,
+      radial-gradient(farthest-side at 0 50%, rgb(15 23 42 / 0.16), transparent) left center / 10px 100% no-repeat scroll,
+      radial-gradient(farthest-side at 100% 50%, rgb(15 23 42 / 0.16), transparent) right center / 10px 100% no-repeat scroll;
+  }
+  @media (max-width: 639px) {
+    .prose-archive .katex-display > .katex {
+      font-size: 1em;
+    }
+  }
+  .prose-archive .katex-display > .katex {
+    @apply text-left sm:text-center;
+    white-space: nowrap;
   }
   .prose-archive .katex {
     font-size: 1.08em;
